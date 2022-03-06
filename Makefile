@@ -24,8 +24,8 @@ $(mlx):
 	make -C $(mlxdir)
 
 clean:
-	rm -r $(builddir)
-	rm $(bin)
+	rm -rf $(builddir)
+	rm -f $(bin)
 
 re: clean
 	make all
