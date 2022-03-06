@@ -1,0 +1,42 @@
+[
+ {
+  "directory": "/Users/csteenvo/projects/cluster",
+  "arguments": [
+   "cc",
+   "-Wall",
+   "-Wextra",
+   "-std=c17",
+   "-pedantic",
+   "src/game_init.c",
+   "-o",
+   "build/game_init.o",
+   "-c",
+   "-MMD",
+   "-I",
+   "include",
+   "-I",
+   "mlx/include"
+  ],
+  "file": "src/game_init.c"
+ },
+ {
+  "directory": "/Users/csteenvo/projects/cluster",
+  "arguments": [
+   "cc",
+   "-Wall",
+   "-Wextra",
+   "-std=c17",
+   "-pedantic",
+   "src/main.c",
+   "-o",
+   "build/main.o",
+   "-c",
+   "-MMD",
+   "-I",
+   "include",
+   "-I",
+   "mlx/include"
+  ],
+  "file": "src/main.c"
+ }
+]
