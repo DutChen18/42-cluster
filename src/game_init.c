@@ -25,6 +25,7 @@ void game_init(game_t *game, int size)
 					game->cells[i].q = q;
 					game->cells[i].r = r;
 					game->cells[i].s = s;
+					game->cells[i].value = 0;
 					i += 1;
 				}
 			}
