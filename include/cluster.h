@@ -3,13 +3,20 @@
 
 #include <stddef.h>
 
+typedef struct cell cell_t;
+typedef struct game game_t;
+
 struct cell {
-	struct cell *neighbors[6];
+	cell_t *neighbors[6];
+	int value;
+	int q, r, s;
 };
 
 struct game {
-	struct cell *cells;
-	size_t cell_count;
+	cell_t *cells;
+	int cell_count;
 };
+
+void game_init(game_t *game, int size);
 
 #endif
