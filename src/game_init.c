@@ -28,8 +28,8 @@ void game_init(game_t *game, int size)
 					cell->q = q;
 					cell->r = r;
 					cell->s = s;
-					coord_convert(&cell->x, cell->y, q, r, s);
-					coord_convert(&cell->old_x, cell->old_y, q, r, s);
+					coord_convert(&cell->x, &cell->y, q, r, s);
+					coord_convert(&cell->old_x, &cell->old_y, q, r, s);
 					game->cells[i].value = 0;
 					i += 1;
 				}
