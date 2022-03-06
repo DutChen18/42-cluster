@@ -2,6 +2,7 @@
 #define CLUSTER_H
 
 #include <stddef.h>
+#include "MLX42/MLX42.h"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
@@ -16,6 +17,13 @@ struct cell {
 	int q, r, s;
 	float x, y;
 	float old_x, old_y;
+};
+
+struct hexagon {
+	int			height;
+	int			width;
+	int			color;
+	mlx_image_t	*img;
 };
 
 struct game {
