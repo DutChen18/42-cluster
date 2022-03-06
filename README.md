@@ -9,4 +9,5 @@ TODO:
 - player input
 - pouch / pile
 - visuals
-- stuff?
+- gravity
+- rotation

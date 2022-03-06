@@ -18,7 +18,7 @@ $(bin): $(obj) $(mlx)
 
 $(builddir)/%.o: $(srcdir)/%.c
 	@mkdir -p $(builddir)
-	$(CC) $(CFLAGS) $^ -o $@ -c -MMD $(inc)
+	$(CC) $(CFLAGS) $< -o $@ -c -MMD $(inc)
 
 $(mlx):
 	make -C $(mlxdir)

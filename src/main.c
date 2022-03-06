@@ -13,10 +13,10 @@ int main(void)
 	image = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
 	for (int y = 0; y < 100; y++)
 		for (int x = 0; x < 100; x++)
-			mlx_put_pixel(image, x, y, COLOR_RED);
+			mlx_put_pixel(image, x, y, 0xFF0000FF);
 	for (int y = 300; y < 400; y++)
 		for (int x = 400; x < 500; x++)
-			mlx_put_pixel(image, x, y, COLOR_GREEN);
+			mlx_put_pixel(image, x, y, 0xFF00FF);
 	mlx_image_to_window(mlx, image, 0, 0);
 	mlx_loop(mlx);
 	return (EXIT_SUCCESS);
