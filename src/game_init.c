@@ -22,9 +22,12 @@ void game_init(game_t *game, int size)
 		for (int r = -size + 1; r < size; r += 1) {
 			for (int s = -size + 1; s < size; s += 1) {
 				if (q + r + s == 0) {
-					game->cells[i].q = q;
-					game->cells[i].r = r;
-					game->cells[i].s = s;
+					cell = &game->cells[i];
+					cell->q = q;
+					cell->r = r;
+					cell->s = s;
+					coord_convert(&cell->x, cell->y, q, r, s);
+					coord_convert(&cell->old_x, cell->old_y, q, r, s);
 					game->cells[i].value = 0;
 					i += 1;
 				}

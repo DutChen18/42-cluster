@@ -10,6 +10,8 @@ struct cell {
 	cell_t *neighbors[6];
 	int value;
 	int q, r, s;
+	float x, y;
+	float old_x, old_y;
 };
 
 struct game {
@@ -17,6 +19,8 @@ struct game {
 	int cell_count;
 	int gravity;
 };
+
+void coord_convert(float *x, float *y, int q, int r, int s);
 
 cell_t *game_get(game_t *game, int q, int r, int s);
 void game_init(game_t *game, int size);
