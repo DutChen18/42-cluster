@@ -19,6 +19,7 @@ void game_init(game_t *game, int size)
 	cell_t	*cell;
 
 	game->cell_count = (size * size - size) * 3 + 1;
+	game->gravity = 0;
 	game->cells = malloc(sizeof(*game->cells) * game->cell_count);
 	for (int q = -size + 1; q < size; q += 1) {
 		for (int r = -size + 1; r < size; r += 1) {
