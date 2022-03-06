@@ -3,6 +3,10 @@
 
 #include <stddef.h>
 
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 600
+
+
 typedef struct cell cell_t;
 typedef struct game game_t;
 

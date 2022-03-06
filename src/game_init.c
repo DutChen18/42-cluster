@@ -4,6 +4,7 @@
 cell_t *game_get(game_t *game, int q, int r, int s)
 {
 	cell_t *cell;
+	
 	for (int i = 0; i < game->cell_count; i += 1) {
 		cell = &game->cells[i];
 		if (cell->q == q && cell->r == r && cell->s == s)
@@ -14,8 +15,9 @@ cell_t *game_get(game_t *game, int q, int r, int s)
 
 void game_init(game_t *game, int size)
 {
-	int i = 0;
-	cell_t *cell;
+	int		i = 0;
+	cell_t	*cell;
+
 	game->cell_count = (size * size - size) * 3 + 1;
 	game->cells = malloc(sizeof(*game->cells) * game->cell_count);
 	for (int q = -size + 1; q < size; q += 1) {
