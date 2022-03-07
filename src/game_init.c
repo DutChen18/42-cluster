@@ -13,11 +13,23 @@ cell_t *game_get(game_t *game, int q, int r, int s)
 	return NULL;
 }
 
+static void set_sizes_cells(game_t *game, int height, int width)
+{
+	game->cell_height = WINDOW_HEIGHT / height;
+	game->cell_diagonal = WINDOW_WIDTH / width * 4;
+	if (game->cell_height < get_height_from_width(game->cell_diagonal))
+		game->cell_diagonal = get_width_from_height(game->cell_height);
+	else
+		game->cell_height = get_height_from_width(game->cell_height);	
+}
+
 void game_init(game_t *game, int size)
 {
 	int		i = 0;
 	cell_t	*cell;
 
+	game->rings = size;
+	set_sizes_cells(game, size * 2 - 1 ,4 + 6 * (size - 1));
 	game->cell_count = (size * size - size) * 3 + 1;
 	game->gravity = 0;
 	game->cells = malloc(sizeof(*game->cells) * game->cell_count);
