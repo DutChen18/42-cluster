@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wextra -std=c17 -pedantic
+CFLAGS = -Wall -Wextra -std=c17 -pedantic -fsanitize=address -Og -g
 
 srcdir = src
 builddir = build

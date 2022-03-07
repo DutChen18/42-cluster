@@ -14,23 +14,6 @@ int	get_width_from_height(int height) {
 	return height / sqrt(3) * 2;
 }
 
-void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
-{
-	obj->width = width;
-	obj->height = height;
-	obj->img = mlx_new_image(mlx, obj->width, obj->height);
-	obj->color = color;
-	for (int x = 0; x < obj->width; x++)
-		for (int y = 0; y < obj->height; y++)
-		{
-			int temp_y = abs(obj->height / 2 - y);
-			int temp_x = (obj->width / 2 - abs(obj->width / 2 - x)) * sqrt(3);
-			if (temp_y <= temp_x)
-				mlx_put_pixel(obj->img, x, y, obj->color);
-		}
-	mlx_put_pixel(obj->img, obj->width/2, obj->height/2, 0x00FF00FF); //even voor het beeld
-}
-
 void	hexagon_border_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
 {
 	obj->width = width;
@@ -91,23 +74,19 @@ void	set_background(mlx_t* mlx, int color)
 
 void	place_cells()
 {
-	
+
 }
 
 int main(void)
 {
 	mlx_t		*mlx;
-	mlx_image_t	*image;
 	hexagon_t	hexagon_purple;
 	hexagon_t	hexagon_blue;
 	grid_t		grid;
 	game_t game;
 
-	game_init(&game,SIZE);
+	game_init(&game, SIZE, 4);
 	mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 1);
-	image = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	hexagon_init(mlx, &hexagon_purple, game.cell_diagonal, game.cell_height, 0xB19CD9FF);
-	hexagon_init(mlx, &hexagon_blue, game.cell_diagonal, game.cell_height, 0x0000FFFF);
 	set_background(mlx, 0x333333FF);
 	place_cell(mlx, &game.cells[4], &hexagon_purple);
 	place_cell(mlx, &game.cells[game.cell_count - 5], &hexagon_blue);
