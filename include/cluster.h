@@ -39,5 +39,6 @@ void game_init(game_t *game, int size);
 cell_t *game_update(game_t *game, cell_t *cell);
 void game_rotate(game_t *game, int gravity);
 void game_drop(game_t *game, int q, int r, int s, int value);
+int game_winner(game_t *game);
 
 #endif
