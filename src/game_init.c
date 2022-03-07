@@ -13,14 +13,26 @@ cell_t *game_get(game_t *game, int q, int r, int s)
 	return NULL;
 }
 
-void game_init(game_t *game, int size)
+void game_init(game_t *game, int size, int color_count)
 {
 	int		i = 0;
 	cell_t	*cell;
 
 	game->cell_count = (size * size - size) * 3 + 1;
+	game->color_count = color_count;
 	game->gravity = 0;
+	game->grid_size = size;
 	game->cells = malloc(sizeof(*game->cells) * game->cell_count);
+	game->colors = malloc(sizeof(*game->colors) * game->color_count);
+	game->chip_counts = malloc(sizeof(*game->chip_counts) * game->color_count);
+	game->turn = 0;
+	for (int i = 0; i < game->color_count; i += 1) {
+		game->colors[i] = 0;
+		game->colors[i] |= 0xFF * ((i + 1) >> 0 & 1);
+		game->colors[i] |= 0xFF00 * ((i + 1) >> 1 & 1);
+		game->colors[i] |= 0xFF0000 * ((i + 1) >> 2 & 1);
+		game->chip_counts[i] = game->cell_count / game->color_count;
+	}
 	for (int q = -size + 1; q < size; q += 1) {
 		for (int r = -size + 1; r < size; r += 1) {
 			for (int s = -size + 1; s < size; s += 1) {
@@ -31,7 +43,7 @@ void game_init(game_t *game, int size)
 					cell->s = s;
 					coord_convert(&cell->x, &cell->y, q, r, s);
 					coord_convert(&cell->old_x, &cell->old_y, q, r, s);
-					game->cells[i].value = 0;
+					game->cells[i].value = -1;
 					i += 1;
 				}
 			}
