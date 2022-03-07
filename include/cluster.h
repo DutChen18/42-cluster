@@ -15,6 +15,7 @@ typedef struct cell cell_t;
 typedef struct game game_t;
 typedef struct grid grid_t;
 typedef struct hexagon hexagon_t;
+typedef struct player player_t;
 
 struct cell {
 	cell_t	*neighbors[6];
@@ -24,18 +25,18 @@ struct cell {
 	float	old_x, old_y;
 };
 
-struct grid {
-	int			height;
-	int			width;
-	mlx_image_t	*grid;
-	hexagon_t	*one_cell;
-};
-
 struct hexagon {
 	int			height;
 	int			width;
 	int			color;
 	mlx_image_t	*img;
+};
+
+struct grid {
+	int			height;
+	int			width;
+	mlx_image_t	*grid;
+	hexagon_t	one_cell;
 };
 
 struct game {

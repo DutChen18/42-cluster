@@ -64,7 +64,7 @@ void game_loop(const char *path1, const char *path2)
 	game_t game;
 	player_t players[2];
 
-	game_init(&game, 4, 1);
+	game_init(NULL, &game, 4, 1);
 	init_player(path1, &players[0]);
 	init_player(path2, &players[1]);
 	game_start(&game, players);

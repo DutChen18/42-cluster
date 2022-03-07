@@ -1,5 +1,6 @@
 #include "cluster.h"
 #include <stdlib.h>
+#include <math.h>
 
 void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
 {
@@ -56,20 +57,21 @@ void game_init(mlx_t *mlx, game_t *game, int size, int color_count)
 	set_sizes_cells(game, size * 2 - 1 ,4 + 6 * (size - 1));
 	game->cell_count = (size * size - size) * 3 + 1;
 	game->color_count = color_count;
-	game->gravity = 0;
+	game->gravity = 3;
 	game->grid_size = size;
 	game->cells = malloc(sizeof(*game->cells) * game->cell_count);
 	game->colors = malloc(sizeof(*game->colors) * game->color_count);
 	game->chip_counts = malloc(sizeof(*game->chip_counts) * game->color_count);
 	game->turn = 0;
 	for (int i = 0; i < game->color_count; i += 1) {
-		game->colors[i] = 0;
-		game->colors[i] |= 0xFF * ((i + 1) >> 0 & 1);
-		game->colors[i] |= 0xFF00 * ((i + 1) >> 1 & 1);
-		game->colors[i] |= 0xFF0000 * ((i + 1) >> 2 & 1);
+		game->colors[i] = 0xFF;
+		game->colors[i] |= 0xFFFF * ((i + 1) >> 0 & 1);
+		game->colors[i] |= 0xFF00FF * ((i + 1) >> 1 & 1);
+		game->colors[i] |= 0xFF0000FF * ((i + 1) >> 2 & 1);
 		game->chip_counts[i] = game->cell_count / game->color_count;
 	}
-	hexagon_color_array(mlx, game, color_count);
+	if (mlx != NULL)
+		hexagon_color_array(mlx, game, color_count);
 	for (int q = -size + 1; q < size; q += 1) {
 		for (int r = -size + 1; r < size; r += 1) {
 			for (int s = -size + 1; s < size; s += 1) {
