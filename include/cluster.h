@@ -6,16 +6,30 @@
 #include <stdio.h>
 #include "MLX42/MLX42.h"
 
-#define WINDOW_WIDTH 2560 * 2
-#define WINDOW_HEIGHT 1440 * 2
+#define WINDOW_WIDTH 1080
+#define WINDOW_HEIGHT 1080
 #define GRID_BORDER_SIZE 8 //best a even number
 #define SIZE 8 //max is 55 if we fix 1 image for the grid, otherwise devide by 1.7
+
+# define NUMPAD_7_KEY 89
+# define NUMPAD_8_KEY 91
+# define NUMPAD_9_KEY 92
+# define NUMPAD_4_KEY 86
+# define NUMPAD_5_KEY 87
+# define NUMPAD_6_KEY 88
+
+# define UP_ARROW_KEY 126
+# define DOWN_ARROW_KEY 125
+# define LEFT_ARROW_KEY 123
+# define RIGHT_ARROW_KEY 124
+# define ESC_KEY 53
 
 typedef struct cell cell_t;
 typedef struct game game_t;
 typedef struct grid grid_t;
 typedef struct hexagon hexagon_t;
 typedef struct player player_t;
+typedef struct cluster cluster_t;
 
 struct cell {
 	cell_t	*neighbors[6];
@@ -52,6 +66,14 @@ struct game {
 	int			*chip_counts;
 	int			gravity;
 	int			turn;
+};
+
+struct cluster
+{
+	mlx_t			*mlx;
+	game_t			game;
+	grid_t			grid;
+	mlx_key_data_t	move;
 };
 
 struct player {

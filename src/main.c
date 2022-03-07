@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include <string.h>
 
 int get_height_from_width(int width) {
 	return width / 2 * sqrt(3);
@@ -44,7 +45,6 @@ void	place_cell(mlx_t *mlx, cell_t *cell, hexagon_t *hexagon)
 {
 	int x, y;
 
-	printf("cell coor -> x:%f	y:%f\n", cell->x, cell->y);
 	x = (hexagon->height - GRID_BORDER_SIZE / 2) * cell->x + (WINDOW_WIDTH / 2 - hexagon->width / 2);
 	y = (hexagon->height - GRID_BORDER_SIZE / 2) * cell->y + (WINDOW_HEIGHT / 2 - hexagon->height / 2);
 
@@ -81,23 +81,47 @@ void	set_background(mlx_t* mlx, int color)
 	mlx_image_to_window(mlx, image, 0, 0);
 }
 
+void	make_frame(mlx_t *mlx, game_t *game, grid_t *grid)
+{
+	set_background(mlx, 0x333333FF);
+	place_cells(mlx, game); // is niks de eerste keer
+	grid_init(mlx, grid, game);
+	mlx_image_to_window(mlx, grid->grid, 0, 0);
+}
+
+static void	process_movement(mlx_key_data_t keydata, void* param)
+{
+	cluster_t *data;
+
+	data = (cluster_t*)param;
+	if (keydata.key == MLX_KEY_KP_8 && keydata.action == 0)
+		game_rotate(&data->game, 0);
+	else if (keydata.key == MLX_KEY_KP_5 && keydata.action == 0)
+		game_rotate(&data->game, 3);
+	else if (keydata.key == MLX_KEY_KP_9 && keydata.action == 0)
+		game_rotate(&data->game, 1);
+	else if (keydata.key == MLX_KEY_KP_6 && keydata.action == 0)
+		game_rotate(&data->game, 2);
+	else if (keydata.key == MLX_KEY_KP_4 && keydata.action == 0)
+		game_rotate(&data->game, 4);
+	else if (keydata.key == MLX_KEY_KP_7 && keydata.action == 0)
+		game_rotate(&data->game, 5);
+	make_frame(data->mlx, &data->game, &data->grid);
+}
+
 int main(void)
 {
-	mlx_t		*mlx;
-	grid_t		grid;
-	game_t game;
 
-	mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 1);
-	game_init(mlx, &game, SIZE, 4);
-	set_background(mlx, 0x333333FF);
-	game_drop(&game, 0, 0, 0, 0);
-	game_drop(&game, 0, 0, 0, 1);
-	game_drop(&game, -2, -1, 3, 2);
-	game_drop(&game, 0, 0, 0, 3);
-	game_rotate(&game, 1);
-	place_cells(mlx, &game);
-	grid_init(mlx, &grid, &game);
-	mlx_image_to_window(mlx, grid.grid, 0, 0);
-	mlx_loop(mlx);
+	cluster_t			data;
+
+	data.mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 1);
+	game_init(data.mlx, &data.game, SIZE, 4);
+	game_drop(&data.game, 0, 0, 0, 0);
+	game_drop(&data.game, 0, 0, 0, 1);
+	game_drop(&data.game, -2, -1, 3, 2);
+	game_drop(&data.game, 0, 0, 0, 3);
+	make_frame(data.mlx, &data.game, &data.grid);
+	mlx_key_hook(data.mlx, process_movement, &data);
+	mlx_loop(data.mlx);
 	return (EXIT_SUCCESS);
 }
