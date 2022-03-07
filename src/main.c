@@ -87,7 +87,7 @@ int main(void)
 	grid_t		grid;
 	game_t game;
 
-	mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 1);
+	mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 0);
 	game_init(mlx, &game, SIZE, 4);
 	set_background(mlx, 0x333333FF);
 	game_drop(&game, 0, 0, 0, 0);

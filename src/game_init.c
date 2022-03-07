@@ -22,7 +22,7 @@ void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
 cell_t *game_get(game_t *game, int q, int r, int s)
 {
 	cell_t *cell;
-	
+
 	for (int i = 0; i < game->cell_count; i += 1) {
 		cell = &game->cells[i];
 		if (cell->q == q && cell->r == r && cell->s == s)
@@ -38,7 +38,7 @@ static void set_sizes_cells(game_t *game, int height, int width)
 	if (game->cell_height < get_height_from_width(game->cell_diagonal))
 		game->cell_diagonal = get_width_from_height(game->cell_height);
 	else
-		game->cell_height = get_height_from_width(game->cell_height);	
+		game->cell_height = get_height_from_width(game->cell_height);
 }
 
 void	hexagon_color_array(mlx_t *mlx, game_t* game, int color_count)

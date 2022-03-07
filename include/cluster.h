@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include "MLX42/MLX42.h"
 
-#define WINDOW_WIDTH 2560 * 2
-#define WINDOW_HEIGHT 1440 * 2
+#define WINDOW_WIDTH 1000
+#define WINDOW_HEIGHT 1000
 #define GRID_BORDER_SIZE 8 //best a even number
 #define SIZE 8 //max is 55 if we fix 1 image for the grid, otherwise devide by 1.7
 
