@@ -2,8 +2,14 @@
 #include <stdlib.h>
 #include <math.h>
 
+int	create_color(int r, int g, int b, int t)
+{
+	return (r << 24 | g << 16 | b << 8 | t);
+}
+
 void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
 {
+	long double sqrt_3 = sqrt(3);
 	obj->width = width;
 	obj->height = height;
 	obj->img = mlx_new_image(mlx, obj->width, obj->height);
@@ -12,9 +18,9 @@ void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
 		for (int y = 0; y < obj->height; y++)
 		{
 			int temp_y = abs(obj->height / 2 - y);
-			int temp_x = (obj->width / 2 - abs(obj->width / 2 - x)) * sqrt(3);
+			int temp_x = (obj->width / 2 - abs(obj->width / 2 - x)) * sqrt_3;
 			if (temp_y <= temp_x)
-				mlx_put_pixel(obj->img, x, y, obj->color);
+				mlx_put_pixel(obj->img, x, y, create_color((y + x) * -1 / 2, 0, 200, 255));
 		}
 	mlx_put_pixel(obj->img, obj->width/2, obj->height/2, 0x00FF00FF); //even voor het beeld
 }

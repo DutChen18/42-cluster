@@ -73,12 +73,26 @@ void	grid_init(mlx_t* mlx, grid_t *obj, game_t *game)
 void	set_background(mlx_t* mlx, int color)
 {
 	mlx_image_t	*image;
+	mlx_image_t	*bg_gradient; // Background gradient
+	float gradient_y;
+	float gradient_x;
+	float gradient;
 
 	image = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
+	bg_gradient = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
 	for (int y = 0; y < WINDOW_HEIGHT; y++)
+	{
+		gradient_y = y;
 		for (int x = 0; x < WINDOW_WIDTH; x++)
+		{
+			gradient_x = x;
+			gradient = gradient_y / WINDOW_HEIGHT * 200;
 			mlx_put_pixel(image, x, y, color);
+			mlx_put_pixel(bg_gradient, x, y, create_color(0x33 + gradient, 0x33, 0x33 + gradient, 0x66));
+		}
+	}
 	mlx_image_to_window(mlx, image, 0, 0);
+	mlx_image_to_window(mlx, bg_gradient, 0, 0);
 }
 
 void	make_frame(mlx_t *mlx, game_t *game, grid_t *grid)
@@ -112,7 +126,6 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 int main(void)
 {
 
-<<<<<<< HEAD
 	cluster_t			data;
 
 	data.mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 1);
@@ -124,19 +137,5 @@ int main(void)
 	make_frame(data.mlx, &data.game, &data.grid);
 	mlx_key_hook(data.mlx, process_movement, &data);
 	mlx_loop(data.mlx);
-=======
-	mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 0);
-	game_init(mlx, &game, SIZE, 4);
-	set_background(mlx, 0x333333FF);
-	game_drop(&game, 0, 0, 0, 0);
-	game_drop(&game, 0, 0, 0, 1);
-	game_drop(&game, -2, -1, 3, 2);
-	game_drop(&game, 0, 0, 0, 3);
-	game_rotate(&game, 1);
-	place_cells(mlx, &game);
-	grid_init(mlx, &grid, &game);
-	mlx_image_to_window(mlx, grid.grid, 0, 0);
-	mlx_loop(mlx);
->>>>>>> c1cf91c386cb46be569685b795cda659067a7998
 	return (EXIT_SUCCESS);
 }
