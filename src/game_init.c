@@ -94,7 +94,7 @@ void game_init(mlx_t *mlx, game_t *game, int size, int color_count)
 		cell->neighbors[1] = game_get(game, cell->q + 1, cell->r - 1, cell->s);
 		cell->neighbors[2] = game_get(game, cell->q + 1, cell->r, cell->s - 1);
 		cell->neighbors[3] = game_get(game, cell->q, cell->r + 1, cell->s - 1);
-		cell->neighbors[4] = game_get(game, cell->q - 1, cell->r, cell->s + 1);
-		cell->neighbors[5] = game_get(game, cell->q - 1, cell->r + 1, cell->s);
+		cell->neighbors[4] = game_get(game, cell->q - 1, cell->r + 1, cell->s);
+		cell->neighbors[5] = game_get(game, cell->q - 1, cell->r, cell->s + 1);
 	}
 }

@@ -94,6 +94,7 @@ int main(void)
 	game_drop(&game, 0, 0, 0, 1);
 	game_drop(&game, -2, -1, 3, 2);
 	game_drop(&game, 0, 0, 0, 3);
+	game_rotate(&game, 1);
 	place_cells(mlx, &game);
 	grid_init(mlx, &grid, &game);
 	mlx_image_to_window(mlx, grid.grid, 0, 0);
