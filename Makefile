@@ -27,6 +27,9 @@ clean:
 	rm -rf $(builddir)
 	rm -f $(bin)
 
+test: all
+	./cluster
+
 re: clean
 	make all
 

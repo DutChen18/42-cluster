@@ -112,6 +112,7 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 int main(void)
 {
 
+<<<<<<< HEAD
 	cluster_t			data;
 
 	data.mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 1);
@@ -123,5 +124,19 @@ int main(void)
 	make_frame(data.mlx, &data.game, &data.grid);
 	mlx_key_hook(data.mlx, process_movement, &data);
 	mlx_loop(data.mlx);
+=======
+	mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 0);
+	game_init(mlx, &game, SIZE, 4);
+	set_background(mlx, 0x333333FF);
+	game_drop(&game, 0, 0, 0, 0);
+	game_drop(&game, 0, 0, 0, 1);
+	game_drop(&game, -2, -1, 3, 2);
+	game_drop(&game, 0, 0, 0, 3);
+	game_rotate(&game, 1);
+	place_cells(mlx, &game);
+	grid_init(mlx, &grid, &game);
+	mlx_image_to_window(mlx, grid.grid, 0, 0);
+	mlx_loop(mlx);
+>>>>>>> c1cf91c386cb46be569685b795cda659067a7998
 	return (EXIT_SUCCESS);
 }
