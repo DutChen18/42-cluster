@@ -25,7 +25,7 @@ void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
 			if (temp_y <= temp_x)
 			{
 				unsigned new_color = 0xFF;
-				gradient = (float)(y + x) / (height + width) / 2;
+				gradient = 1 - (float)(y + x) / (height + width) / 2 - 0.1;
 				new_color |= (unsigned)((color & 0xFF000000) * gradient) & 0xFF000000;
 				new_color |= (unsigned)((color & 0x00FF0000) * gradient) & 0x00FF0000;
 				new_color |= (unsigned)((color & 0x0000FF00) * gradient) & 0x0000FF00;
