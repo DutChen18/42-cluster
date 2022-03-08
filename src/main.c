@@ -79,7 +79,8 @@ void	place_hexagon(mlx_t *mlx, cell_t *cell, hexagon_t *hexagon, game_t *game)
 	{
 		x = (game->cell_height - GRID_BORDER_SIZE / 2) * (cell->old_x) + (WINDOW_WIDTH / 2 - hexagon->width / 2);
 		y = (game->cell_height - GRID_BORDER_SIZE / 2) * (cell->old_y) + (WINDOW_HEIGHT / 2 - hexagon->height / 2);
-		new_instance = mlx_image_to_window(mlx, hexagon->img, x, y);
+		int index = mlx_image_to_window(mlx, hexagon->img, x, y);
+		new_instance = &hexagon->img->instances[index];
 		cell->image = hexagon->img;
 		cell->tile_instance = new_instance - hexagon->img->instances;
 		cell->placed = true;
@@ -179,7 +180,10 @@ void	set_background(mlx_t* mlx, int color, game_t *game)
 	}
 	mlx_image_to_window(mlx, image, 0, 0);
 	for (int i = 0; i < 6; i++)
-		mlx_image_to_window(mlx, game->bg_gradients[i], 0, 0)->z = -1;
+	{
+		int index = mlx_image_to_window(mlx, game->bg_gradients[i], 0, 0);
+		game->bg_gradients[i]->instances[index].z = -1;
+	}
 }
 
 void	make_first_frame(mlx_t *mlx, game_t *game, grid_t *grid)

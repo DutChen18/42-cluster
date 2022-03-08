@@ -6,7 +6,7 @@
 /*   By: W2Wizard <w2.wizzard@gmail.com>              +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/12/28 00:33:01 by W2Wizard      #+#    #+#                 */
-/*   Updated: 2022/03/03 16:53:42 by lde-la-h      ########   odam.nl         */
+/*   Updated: 2022/03/08 20:47:03 by lde-la-h      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -557,6 +557,9 @@ mlx_image_t* mlx_new_image(mlx_t* mlx, uint32_t width, uint32_t height);
  * Draws a new instance of an image, it will then share the same
  * pixel buffer as the image.
  * 
+ * NOTE: Keep in mind that the instance array gets reallocated, try to
+ * to store a pointer to an instance! It will become invalid!
+ * 
  * WARNING: Try to display as few images onto the window as possible,
  * drawing too many images will cause a loss in peformance!
  * 
@@ -564,9 +567,9 @@ mlx_image_t* mlx_new_image(mlx_t* mlx, uint32_t width, uint32_t height);
  * @param[in] img The image to draw onto the screen.
  * @param[in] x The X position.
  * @param[in] y The Y position.
- * @return Pointer to the newly created instance or NULL on failure.
+ * @return Index to the instance, or -1 on failure.
  */
-mlx_instance_t* mlx_image_to_window(mlx_t* mlx, mlx_image_t* img, int32_t x, int32_t y);
+int32_t mlx_image_to_window(mlx_t* mlx, mlx_image_t* img, int32_t x, int32_t y);
 
 /**
  * Deleting an image will remove it from the render queue as well as any and all

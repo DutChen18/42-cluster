@@ -1,5 +1,6 @@
 CFLAGS = -Wall -Wextra -std=c17 -pedantic -fsanitize=address -Og -g
 
+botfile = test.c
 srcdir = src
 builddir = build
 mlxdir = mlx
@@ -29,6 +30,12 @@ clean:
 
 test: all
 	./cluster
+
+bot_test: all bot
+	./cluster ./bot ./bot
+
+bot:
+	$(CC) $(botfile) -o $@
 
 re: clean
 	make all
