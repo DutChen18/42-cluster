@@ -127,9 +127,9 @@ void	set_background(mlx_t* mlx, int color)
 		for (int x = 0; x < WINDOW_WIDTH; x++)
 		{
 			gradient_x = x;
-			gradient = gradient_y / WINDOW_HEIGHT * 200;
+			gradient = (gradient_y / 1.7 + gradient_x) / (WINDOW_HEIGHT + WINDOW_WIDTH) * 255;
 			mlx_put_pixel(image, x, y, color);
-			mlx_put_pixel(bg_gradient, x, y, create_color(0x33 + gradient, 0x33, 0x33 + gradient, 0x33));
+			mlx_put_pixel(bg_gradient, x, y, create_color(0x33, 0x33, 0xFF, gradient));
 		}
 	}
 	mlx_image_to_window(mlx, image, 0, 0);
@@ -157,6 +157,8 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 	if (data->moving == false)
 	{
 		data->moving = true;
+		if (keydata.key == MLX_KEY_ESCAPE)
+			exit(0);
 		if (keydata.key == MLX_KEY_KP_8 && keydata.action == 1)
 			game_rotate(&data->game, 0);
 		else if (keydata.key == MLX_KEY_KP_5 && keydata.action == 1)

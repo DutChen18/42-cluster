@@ -9,7 +9,9 @@ int	create_color(int r, int g, int b, int t)
 
 void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
 {
-	long double sqrt_3 = sqrt(3);
+	float				gradient;
+	const long double	sqrt_3 = sqrt(3);
+
 	obj->width = width / 5 * 4;
 	obj->height = height / 5 * 4;
 	obj->img = mlx_new_image(mlx, obj->width, obj->height);
@@ -20,7 +22,14 @@ void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
 			int temp_y = abs(obj->height / 2 - y);
 			int temp_x = (obj->width / 2 - abs(obj->width / 2 - x)) * sqrt_3;
 			if (temp_y <= temp_x)
-				mlx_put_pixel(obj->img, x, y, create_color((y + x) * -1 / 2, 0, 200, 255));
+			{
+				unsigned new_color = 0xFF;
+				gradient = 1 - (float)(y + x) / (height + width) / 2 - 0.1;
+				new_color |= (unsigned)((color & 0xFF000000) * gradient) & 0xFF000000;
+				new_color |= (unsigned)((color & 0x00FF0000) * gradient) & 0x00FF0000;
+				new_color |= (unsigned)((color & 0x0000FF00) * gradient) & 0x0000FF00;
+				mlx_put_pixel(obj->img, x, y, new_color);
+			}
 		}
 	mlx_put_pixel(obj->img, obj->width/2, obj->height/2, 0x00FF00FF); //even voor het beeld
 }
