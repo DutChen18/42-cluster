@@ -6,7 +6,7 @@
 /*   By: W2Wizard <w2.wizzard@gmail.com>              +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/12/28 01:24:36 by W2Wizard      #+#    #+#                 */
-/*   Updated: 2022/03/08 17:50:01 by avan-ber      ########   odam.nl         */
+/*   Updated: 2022/03/08 17:59:37 by avan-ber      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,6 @@ void mlx_loop(mlx_t* mlx)
 {
 	double start, oldstart = 0;
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	while (!glfwWindowShouldClose(mlx->window))
 	{
 		start = glfwGetTime();
