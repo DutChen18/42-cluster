@@ -11,7 +11,7 @@
 #define WINDOW_WIDTH 1080
 #define WINDOW_HEIGHT 1080
 #define GRID_BORDER_SIZE 6 //best a even number
-#define SIZE 6 //max is 55 if we fix 1 image for the grid, otherwise devide by 1.7
+#define SIZE 25 //max is 55 if we fix 1 image for the grid, otherwise devide by 1.7
 
 // Numpad values (unused).
 # define NUMPAD_7_KEY 89

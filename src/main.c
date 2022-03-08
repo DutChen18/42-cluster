@@ -27,8 +27,15 @@ void	hexagon_border_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int 
 		{
 			int temp_y = abs(obj->height / 2 - y);
 			int temp_x = (obj->width / 2 - abs(obj->width / 2 - x)) * sqrt(3);
-			if (temp_y <= temp_x && temp_y > temp_x - GRID_BORDER_SIZE)
-				mlx_put_pixel(obj->img, x, y, obj->color);
+			if (temp_y <= temp_x)
+			{
+				if (temp_y > temp_x - GRID_BORDER_SIZE)
+					mlx_put_pixel(obj->img, x, y, obj->color);
+				else
+				{
+					mlx_put_pixel(obj->img, x, y, 0x333333FF);
+				}
+			}
 		}
 	}
 	for(int y = 0; y < GRID_BORDER_SIZE / 2; y++)
@@ -196,7 +203,7 @@ int main(void)
 	game_init(data.mlx, &data.game, SIZE, 4);
 	game_drop(&data.game, 0, 0, 0, 0);
 	data.time = 0;
-	game_drop(&data.game, -2, -1, 3, 2);
+	game_drop(&data.game, -2, -1, 3, 3);
 	make_first_frame(data.mlx, &data.game, &data.grid);
 	mlx_key_hook(data.mlx, process_movement, &data);
 	mlx_loop_hook(data.mlx, frame, &data);
