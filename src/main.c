@@ -108,7 +108,9 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 	cluster_t *data;
 
 	data = (cluster_t*)param;
-	if (keydata.key == MLX_KEY_KP_8 && keydata.action == 0)
+	if (keydata.key == MLX_KEY_ESCAPE)
+		exit(0);
+	else if (keydata.key == MLX_KEY_KP_8 && keydata.action == 0)
 		game_rotate(&data->game, 0);
 	else if (keydata.key == MLX_KEY_KP_5 && keydata.action == 0)
 		game_rotate(&data->game, 3);
