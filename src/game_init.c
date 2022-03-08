@@ -96,7 +96,7 @@ void game_init(mlx_t *mlx, game_t *game, int size, int color_count)
 					cell->r = r;
 					cell->s = s;
 					cell->value = -1;
-					cell->tile_instance = NULL;
+					cell->tile_instance = -1;
 					cell->placed = false;
 					coord_convert(&cell->x, &cell->y, q, r, s);
 					coord_convert(&cell->old_x, &cell->old_y, q, r, s);

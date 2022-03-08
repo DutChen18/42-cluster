@@ -30,6 +30,7 @@ cell_t *game_update(game_t *game, cell_t *cell)
 	swap(&cell->old_y, &dropped->old_y, sizeof(cell->old_y));
 	swap(&cell->tile_instance, &dropped->tile_instance, sizeof(cell->tile_instance));
 	swap(&cell->placed, &dropped->placed, sizeof(cell->placed));
+	swap(&cell->image, &dropped->image, sizeof(cell->image));
 	return dropped->neighbors[(game->gravity + 3) % 6];
 }
 
