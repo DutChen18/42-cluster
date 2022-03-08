@@ -41,23 +41,64 @@ void	hexagon_border_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int 
 	}
 }
 
-void	place_cell(mlx_t *mlx, cell_t *cell, hexagon_t *hexagon)
+void	place_border(mlx_t *mlx, cell_t *cell, hexagon_t *hexagon, game_t *game)
 {
 	int x, y;
 
-	x = (hexagon->height - GRID_BORDER_SIZE / 2) * cell->x + (WINDOW_WIDTH / 2 - hexagon->width / 2);
-	y = (hexagon->height - GRID_BORDER_SIZE / 2) * cell->y + (WINDOW_HEIGHT / 2 - hexagon->height / 2);
+	x = (game->cell_height - GRID_BORDER_SIZE / 2) * cell->x + (WINDOW_WIDTH / 2 - hexagon->width / 2);
+	y = (game->cell_height - GRID_BORDER_SIZE / 2) * cell->y + (WINDOW_HEIGHT / 2 - hexagon->height / 2);
 
 	mlx_image_to_window(mlx, hexagon->img, x, y);
 }
 
-void	place_cells(mlx_t *mlx, game_t *game)
+void	place_hexagon(mlx_t *mlx, cell_t *cell, hexagon_t *hexagon, game_t *game)
 {
+	int x, y;
+	float dir_x, dir_y;
+	float normal;
+
+	dir_x = cell->x - cell->old_x;
+	dir_y = cell->y - cell->old_y;
+	normal = sqrt(dir_x * dir_x + dir_y * dir_y);
+	if (normal > 1)
+	{
+		dir_x /= normal;
+		dir_y /= normal;
+	}
+	printf("dir=> x:%f	y:%f\n", dir_x, dir_y);
+	x = (game->cell_height - GRID_BORDER_SIZE / 2) * (cell->old_x + dir_x) + (WINDOW_WIDTH / 2 - hexagon->width / 2);
+	y = (game->cell_height - GRID_BORDER_SIZE / 2) * (cell->old_y + dir_y) + (WINDOW_HEIGHT / 2 - hexagon->height / 2);
+
+	if (cell->placed == false)
+	{
+		cell->tile_instance = mlx_image_to_window(mlx, hexagon->img, x, y);
+		cell->placed = true;
+	}
+	else
+	{
+		cell->tile_instance->x = x;
+		cell->tile_instance->y = y;
+		cell->old_x += dir_x;
+		cell->old_y += dir_y;
+	}
+}
+
+bool	move_hexagons(mlx_t *mlx, game_t *game)
+{
+	int	move_count = 0;
+
 	for (int i = 0; i < game->cell_count; i++)
 	{
 		if (game->cells[i].value != -1)
-			place_cell(mlx, &game->cells[i], &game->hexa_tiles[game->cells[i].value]);
+		{
+			cell_t *cell = &game->cells[i];
+			if (cell->placed == true && cell->old_x == cell->x && cell->old_y == game->cells[i].y)
+				continue ;
+			place_hexagon(mlx, &game->cells[i], &game->hexa_tiles[game->cells[i].value], game);
+			move_count++;
+		}
 	}
+	return (move_count > 0);
 }
 
 void	grid_init(mlx_t* mlx, grid_t *obj, game_t *game)
@@ -67,7 +108,7 @@ void	grid_init(mlx_t* mlx, grid_t *obj, game_t *game)
 	obj->height = WINDOW_HEIGHT;
 	obj->grid = mlx_new_image(mlx, obj->width, obj->height);
 	for (int i = 0; i < game->cell_count; i++)
-		place_cell(mlx, &game->cells[i], &obj->one_cell);
+		place_border(mlx, &game->cells[i], &obj->one_cell, game);
 }
 
 void	set_background(mlx_t* mlx, int color)
@@ -88,39 +129,60 @@ void	set_background(mlx_t* mlx, int color)
 			gradient_x = x;
 			gradient = gradient_y / WINDOW_HEIGHT * 200;
 			mlx_put_pixel(image, x, y, color);
-			mlx_put_pixel(bg_gradient, x, y, create_color(0x33 + gradient, 0x33, 0x33 + gradient, 0x66));
+			mlx_put_pixel(bg_gradient, x, y, create_color(0x33 + gradient, 0x33, 0x33 + gradient, 0x33));
 		}
 	}
 	mlx_image_to_window(mlx, image, 0, 0);
 	mlx_image_to_window(mlx, bg_gradient, 0, 0);
 }
 
-void	make_frame(mlx_t *mlx, game_t *game, grid_t *grid)
+void	make_first_frame(mlx_t *mlx, game_t *game, grid_t *grid)
 {
 	set_background(mlx, 0x333333FF);
-	place_cells(mlx, game); // is niks de eerste keer
 	grid_init(mlx, grid, game);
+	move_hexagons(mlx, game); //is niet nodig, nu nog voor het testen
 	mlx_image_to_window(mlx, grid->grid, 0, 0);
 }
+
+// bool	any(int key)
+// {
+// 	return (key == MLX_KEY_KP_8 || key == MLX_KEY_KP_5 || key == MLX_KEY_KP_9 || key == MLX_KEY_KP_6 || key == MLX_KEY_KP_4 || key == MLX_KEY_KP_6);
+// }
 
 static void	process_movement(mlx_key_data_t keydata, void* param)
 {
 	cluster_t *data;
 
 	data = (cluster_t*)param;
-	if (keydata.key == MLX_KEY_KP_8 && keydata.action == 0)
-		game_rotate(&data->game, 0);
-	else if (keydata.key == MLX_KEY_KP_5 && keydata.action == 0)
-		game_rotate(&data->game, 3);
-	else if (keydata.key == MLX_KEY_KP_9 && keydata.action == 0)
-		game_rotate(&data->game, 1);
-	else if (keydata.key == MLX_KEY_KP_6 && keydata.action == 0)
-		game_rotate(&data->game, 2);
-	else if (keydata.key == MLX_KEY_KP_4 && keydata.action == 0)
-		game_rotate(&data->game, 4);
-	else if (keydata.key == MLX_KEY_KP_7 && keydata.action == 0)
-		game_rotate(&data->game, 5);
-	make_frame(data->mlx, &data->game, &data->grid);
+	if (data->moving == false)
+	{
+		data->moving = true;
+		if (keydata.key == MLX_KEY_KP_8 && keydata.action == 1)
+			game_rotate(&data->game, 0);
+		else if (keydata.key == MLX_KEY_KP_5 && keydata.action == 1)
+			game_rotate(&data->game, 3);
+		else if (keydata.key == MLX_KEY_KP_9 && keydata.action == 1)
+			game_rotate(&data->game, 1);
+		else if (keydata.key == MLX_KEY_KP_6 && keydata.action == 1)
+			game_rotate(&data->game, 2);
+		else if (keydata.key == MLX_KEY_KP_4 && keydata.action == 1)
+			game_rotate(&data->game, 4);
+		else if (keydata.key == MLX_KEY_KP_7 && keydata.action == 1)
+			game_rotate(&data->game, 5);
+		data->time = 0;
+	}
+}
+
+static void	frame(void *param)
+{
+	cluster_t	*data = (cluster_t*)param;
+
+	data->time += data->mlx->delta_time;
+	if (data->time > 0.1)
+	{
+		data->time = 0;
+		data->moving = move_hexagons(data->mlx, &data->game);
+	}
 }
 
 int main(void)
@@ -131,11 +193,11 @@ int main(void)
 	data.mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 1);
 	game_init(data.mlx, &data.game, SIZE, 4);
 	game_drop(&data.game, 0, 0, 0, 0);
-	game_drop(&data.game, 0, 0, 0, 1);
+	data.time = 0;
 	game_drop(&data.game, -2, -1, 3, 2);
-	game_drop(&data.game, 0, 0, 0, 3);
-	make_frame(data.mlx, &data.game, &data.grid);
+	make_first_frame(data.mlx, &data.game, &data.grid);
 	mlx_key_hook(data.mlx, process_movement, &data);
+	mlx_loop_hook(data.mlx, frame, &data);
 	mlx_loop(data.mlx);
 	return (EXIT_SUCCESS);
 }

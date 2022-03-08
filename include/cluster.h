@@ -38,11 +38,13 @@ typedef struct cluster cluster_t;
 
 // The structure used for making game logic cells. Cells are used to place and connect the logic of the grid. Quatation needed.
 struct cell {
-	cell_t	*neighbors[6];
-	int		value;
-	int		q, r, s;
-	float	x, y;
-	float	old_x, old_y;
+	cell_t			*neighbors[6];
+	int				value;
+	int				q, r, s;
+	float			x, y;
+	float			old_x, old_y;
+	mlx_instance_t*	tile_instance;
+	bool			placed;
 };
 
 // Used to store Hexagon properties
@@ -84,6 +86,8 @@ struct cluster
 	game_t			game;
 	grid_t			grid;
 	mlx_key_data_t	move;
+	bool			moving;
+	double			time;
 };
 
 // Structure used for bot implementation

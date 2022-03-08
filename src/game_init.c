@@ -10,8 +10,8 @@ int	create_color(int r, int g, int b, int t)
 void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
 {
 	long double sqrt_3 = sqrt(3);
-	obj->width = width;
-	obj->height = height;
+	obj->width = width / 5 * 4;
+	obj->height = height / 5 * 4;
 	obj->img = mlx_new_image(mlx, obj->width, obj->height);
 	obj->color = color;
 	for (int x = 0; x < obj->width; x++)
@@ -86,9 +86,11 @@ void game_init(mlx_t *mlx, game_t *game, int size, int color_count)
 					cell->q = q;
 					cell->r = r;
 					cell->s = s;
+					cell->value = -1;
+					cell->tile_instance = NULL;
+					cell->placed = false;
 					coord_convert(&cell->x, &cell->y, q, r, s);
 					coord_convert(&cell->old_x, &cell->old_y, q, r, s);
-					game->cells[i].value = -1;
 					i += 1;
 				}
 			}
