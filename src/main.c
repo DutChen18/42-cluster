@@ -111,34 +111,68 @@ void	grid_init(mlx_t* mlx, grid_t *obj, game_t *game)
 		place_border(mlx, &game->cells[i], &obj->one_cell, game);
 }
 
-void	set_background(mlx_t* mlx, int color)
+void	set_bg_gradients(mlx_t* mlx, mlx_image_t **bg_gradients)
+{
+	float			gradient;
+	float			angle;
+	float			x2;
+	float			y2;
+	unsigned int	newcolor;
+	unsigned int	color;
+
+	color = 0x333333FF;
+	printf("set_bg\n");
+	bg_gradients[0] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
+	bg_gradients[1] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
+	bg_gradients[2] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
+	bg_gradients[3] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
+	bg_gradients[4] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
+	bg_gradients[5] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+	for (int i = 0; i < 6; i++)
+	{
+		printf("%i\n", i);
+		for (int y = 0; y < WINDOW_HEIGHT; y++)
+		{
+			for (int x = 0; x < WINDOW_WIDTH; x++)
+			{
+				angle = i * 3.14159 / 3;
+				y2 = (float) y / WINDOW_HEIGHT - 0.5;
+				x2 = (float) x / WINDOW_WIDTH - 0.5;
+				gradient = -y2 * cos(angle) + x2 * sin(angle) + 0.5;
+				if (gradient < 0)
+					gradient = 0;
+				else if (gradient > 1)
+					gradient = 1;
+				newcolor = (unsigned)(gradient * 255) << 8 | (unsigned)(gradient * 255);
+				mlx_put_pixel(bg_gradients[i], x, y, newcolor);
+			}
+		}
+	}
+
+}
+
+void	set_background(mlx_t* mlx, int color, game_t *game)
 {
 	mlx_image_t	*image;
-	mlx_image_t	*bg_gradient; // Background gradient
-	float gradient_y;
-	float gradient_x;
-	float gradient;
 
 	image = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	bg_gradient = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
+	set_bg_gradients(mlx, game->bg_gradients);
 	for (int y = 0; y < WINDOW_HEIGHT; y++)
 	{
-		gradient_y = y;
 		for (int x = 0; x < WINDOW_WIDTH; x++)
 		{
-			gradient_x = x;
-			gradient = (gradient_y / 1.7 + gradient_x) / (WINDOW_HEIGHT + WINDOW_WIDTH) * 255;
 			mlx_put_pixel(image, x, y, color);
-			mlx_put_pixel(bg_gradient, x, y, create_color(0x33, 0x33, 0xFF, gradient));
 		}
 	}
 	mlx_image_to_window(mlx, image, 0, 0);
-	mlx_image_to_window(mlx, bg_gradient, 0, 0);
+	for (int i = 0; i < 6; i++)
+		mlx_image_to_window(mlx, game->bg_gradients[i], 0, 0)->z = -1;
 }
 
 void	make_first_frame(mlx_t *mlx, game_t *game, grid_t *grid)
 {
-	set_background(mlx, 0x333333FF);
+	set_background(mlx, 0x333333FF, game);
 	grid_init(mlx, grid, game);
 	move_hexagons(mlx, game); //is niet nodig, nu nog voor het testen
 	mlx_image_to_window(mlx, grid->grid, 0, 0);

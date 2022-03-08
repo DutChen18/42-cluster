@@ -76,6 +76,7 @@ struct game {
 	hexagon_t	*hexa_tiles;
 	int			*chip_counts;
 	int			gravity;
+	mlx_image_t *bg_gradients[6];
 	int			turn;
 };
 
