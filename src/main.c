@@ -63,6 +63,7 @@ void	place_hexagon(mlx_t *mlx, cell_t *cell, hexagon_t *hexagon, game_t *game)
 	int x, y;
 	float dir_x, dir_y;
 	float normal;
+	mlx_instance_t *new_instance;
 
 	dir_x = cell->x - cell->old_x;
 	dir_y = cell->y - cell->old_y;
@@ -73,18 +74,22 @@ void	place_hexagon(mlx_t *mlx, cell_t *cell, hexagon_t *hexagon, game_t *game)
 		dir_y /= normal;
 	}
 	printf("dir=> x:%f	y:%f\n", dir_x, dir_y);
-	x = (game->cell_height - GRID_BORDER_SIZE / 2) * (cell->old_x + dir_x) + (WINDOW_WIDTH / 2 - hexagon->width / 2);
-	y = (game->cell_height - GRID_BORDER_SIZE / 2) * (cell->old_y + dir_y) + (WINDOW_HEIGHT / 2 - hexagon->height / 2);
 
 	if (cell->placed == false)
 	{
-		cell->tile_instance = mlx_image_to_window(mlx, hexagon->img, x, y);
+		x = (game->cell_height - GRID_BORDER_SIZE / 2) * (cell->old_x) + (WINDOW_WIDTH / 2 - hexagon->width / 2);
+		y = (game->cell_height - GRID_BORDER_SIZE / 2) * (cell->old_y) + (WINDOW_HEIGHT / 2 - hexagon->height / 2);
+		new_instance = mlx_image_to_window(mlx, hexagon->img, x, y);
+		cell->image = hexagon->img;
+		cell->tile_instance = new_instance - hexagon->img->instances;
 		cell->placed = true;
 	}
 	else
 	{
-		cell->tile_instance->x = x;
-		cell->tile_instance->y = y;
+		x = (game->cell_height - GRID_BORDER_SIZE / 2) * (cell->old_x + dir_x) + (WINDOW_WIDTH / 2 - hexagon->width / 2);
+		y = (game->cell_height - GRID_BORDER_SIZE / 2) * (cell->old_y + dir_y) + (WINDOW_HEIGHT / 2 - hexagon->height / 2);
+		cell->image->instances[cell->tile_instance].x = x;
+		cell->image->instances[cell->tile_instance].y = y;
 		cell->old_x += dir_x;
 		cell->old_y += dir_y;
 	}
@@ -187,23 +192,33 @@ static void	frame(void *param)
 	cluster_t	*data = (cluster_t*)param;
 
 	data->time += data->mlx->delta_time;
-	if (data->time > 0.1)
+	if (data->time > 0.02)
 	{
 		data->time = 0;
 		data->moving = move_hexagons(data->mlx, &data->game);
+		if (!data->moving && data->winner == -1)
+		{
+			data->winner = game_turn(&data->game, data->players);
+			move_hexagons(data->mlx, &data->game);
+			data->game.turn = !data->game.turn;
+			data->time = 0;
+		}
 	}
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
 
 	cluster_t			data;
 
+	(void)argc;
 	data.mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 1);
 	game_init(data.mlx, &data.game, SIZE, 4);
-	game_drop(&data.game, 0, 0, 0, 0);
+	popen2(argv[1], &data.players[0]);
+	popen2(argv[2], &data.players[1]);
+	game_start(&data.game, data.players);
 	data.time = 0;
-	game_drop(&data.game, -2, -1, 3, 3);
+	data.winner = -1;
 	make_first_frame(data.mlx, &data.game, &data.grid);
 	mlx_key_hook(data.mlx, process_movement, &data);
 	mlx_loop_hook(data.mlx, frame, &data);

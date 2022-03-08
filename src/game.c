@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-static int popen2(const char* path, player_t* player)
+void popen2(const char* path, player_t* player)
 {
 	int in[2], out[2];
 	pipe(in);
@@ -26,7 +26,6 @@ static int popen2(const char* path, player_t* player)
 		player->out = fdopen(in[STDOUT_FILENO], "w");
 		setbuf(player->out, NULL);
 	}
-	return 0;
 }
 
 void game_start(game_t *game, player_t *players)
@@ -38,7 +37,7 @@ void game_start(game_t *game, player_t *players)
 int game_take_random(game_t *game)
 {
 	int total = 0;
-	int value = game->turn * game->color_count / 2;;
+	int value = game->turn * game->color_count / 2;
 	for (int i = 0; i < game->color_count / 2; i += 1) {
 		total += game->chip_counts[i + value];
 	}
@@ -65,12 +64,14 @@ int game_turn(game_t *game, player_t *players)
 	fscanf(players[game->turn].in, "%255s", action);
 	if (strcmp(action, "rotate") == 0) {
 		fscanf(players[game->turn].in, "%d", &value);
+		fprintf(stderr, "rotate %d\n", value);
 		if (value < 0 || value >= 6)
 			return !game->turn;
 		fprintf(players[!game->turn].out, "rotate %d\n", value);
 		game_rotate(game, value);
-	} else if (strcmp(action, "drop") == 1) {
+	} else if (strcmp(action, "drop") == 0) {
 		fscanf(players[game->turn].in, "%d %d %d %d", &q, &r, &s, &value);
+		fprintf(stderr, "drop %d %d %d %d\n", q, r, s, value);
 		cell_t *cell = game_get(game, q, r, s);
 		if (cell == NULL || cell->value != -1)
 			return !game->turn;
@@ -78,6 +79,7 @@ int game_turn(game_t *game, player_t *players)
 			return !game->turn;
 		if (value >= (game->turn + 1) * game->color_count / 2)
 			return !game->turn;
+		game->chip_counts[value] -= 1;
 		fprintf(players[!game->turn].out, "drop %d %d %d %d\n", q, r, s, value);
 		game_drop(game, q, r, s, value);
 	} else
