@@ -156,7 +156,7 @@ void	set_bg_gradients(mlx_t* mlx, mlx_image_t **bg_gradients)
 					gradient = 0;
 				else if (gradient > 1)
 					gradient = 1;
-				newcolor = (unsigned)(gradient * 255) << 8 | (unsigned)(gradient * 255);
+				newcolor = (unsigned)(gradient * 153) << 24 | (unsigned)(gradient * 153) << 8 | (unsigned)(gradient * 255);
 				mlx_put_pixel(bg_gradients[i], x, y, newcolor);
 			}
 		}
@@ -200,11 +200,11 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 	cluster_t *data;
 
 	data = (cluster_t*)param;
+	if (keydata.key == MLX_KEY_ESCAPE)
+		exit(0);
 	if (data->moving == false)
 	{
 		data->moving = true;
-		if (keydata.key == MLX_KEY_ESCAPE)
-			exit(0);
 		if (keydata.key == MLX_KEY_KP_8 && keydata.action == 1)
 			game_rotate(&data->game, 0);
 		else if (keydata.key == MLX_KEY_KP_5 && keydata.action == 1)
@@ -226,7 +226,7 @@ static void	frame(void *param)
 	cluster_t	*data = (cluster_t*)param;
 
 	data->time += data->mlx->delta_time;
-	if (data->time > 0.02)
+	if (data->time > 0.0001)
 	{
 		data->time = 0;
 		data->moving = move_hexagons(data->mlx, &data->game);

@@ -26,11 +26,10 @@ int main(void)
 	if (id == 1) {
 		read_action(action, &q, &r, &s, &value);
 	}
-	srand(time(NULL));
 	while (1) {
 		scanf(" chips %d %d", &a, &b);
-		if (rand() % 2 == 0)
-			printf("rotate %d\n", rand() % 6);
+		if (arc4random() % 2 == 0)
+			printf("rotate %u\n", arc4random() % 6);
 		else
 			printf("drop 0 0 0 %d\n", a);
 		read_action(action, &q, &r, &s, &value);

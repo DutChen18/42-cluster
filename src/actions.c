@@ -78,7 +78,7 @@ int game_winner(game_t *game)
 				best_count += 1;
 		}
 	}
-	if (best_length >= 4 && best_count == 1)
+	if (best_length >= WIN_LENGTH && best_count == 1)
 		return best_value;
 	return -1;
 }
