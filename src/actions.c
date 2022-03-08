@@ -36,7 +36,10 @@ cell_t *game_update(game_t *game, cell_t *cell)
 
 void game_rotate(game_t *game, int gravity)
 {
+	game->bg_gradients[game->gravity]->instances[0].z = -1;
 	game->gravity = gravity;
+	game->bg_gradients[game->gravity]->instances[0].z = 1;
+
 	for (int i = 0; i < game->cell_count; i++)
 		game_update(game, &game->cells[i]);
 }
