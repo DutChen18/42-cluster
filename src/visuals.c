@@ -67,7 +67,6 @@ static void hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int 
 				mlx_put_pixel(obj->img, x, y, new_color);
 			}
 		}
-	mlx_put_pixel(obj->img, obj->width/2, obj->height/2, 0x00FF00FF); //even voor het beeld
 }
 
 static void set_sizes_cells(visuals_t *visuals, int height, int width)

@@ -104,7 +104,7 @@ int game_start(game_t *game, const char *p1, const char *p2)
 		return 0;
 	if (fscanf(game->players[1].in, "%u", &c2) != 1)
 		return 0;
-	// create_chip_colors(game, c1 << 8 | 0xFF, c2 << 8 | 0xFF);
+	create_chip_colors(game, c1 << 8 | 0xFF, c2 << 8 | 0xFF);
 	return -1;
 }
 
