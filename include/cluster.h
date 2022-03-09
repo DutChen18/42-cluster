@@ -8,11 +8,11 @@
 #include "MLX42/MLX42.h"
 
 //Some basic definitons to be used by the game (have to make a config later).
-#define WINDOW_WIDTH 1080
-#define WINDOW_HEIGHT 1080
+#define WINDOW_WIDTH 5120
+#define WINDOW_HEIGHT 2880
 #define GRID_BORDER_SIZE 6 //best a even number
-#define SIZE 20 //max is 55 if we fix 1 image for the grid, otherwise devide by 1.7
-#define WIN_LENGTH 6
+#define SIZE 55 //max is 55 if we fix 1 image for the grid, otherwise devide by 1.7
+#define WIN_LENGTH 5
 
 // Numpad values (unused).
 # define NUMPAD_7_KEY 89
@@ -76,6 +76,7 @@ struct game {
 	cell_t		*cells;
 	int			*colors;
 	hexagon_t	*hexa_tiles;
+	hexagon_t	wall;
 	int			*chip_counts;
 	int			gravity;
 	mlx_image_t *bg_gradients[6];
@@ -101,6 +102,8 @@ struct cluster
 	player_t		players[2];
 	int				winner;
 };
+
+void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color);
 
 // color functions
 int	create_color(int r, int g, int b, int t);

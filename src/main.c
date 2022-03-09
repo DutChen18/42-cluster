@@ -73,7 +73,6 @@ void	place_hexagon(mlx_t *mlx, cell_t *cell, hexagon_t *hexagon, game_t *game)
 		dir_x /= normal;
 		dir_y /= normal;
 	}
-	printf("dir=> x:%f	y:%f\n", dir_x, dir_y);
 
 	if (cell->placed == false)
 	{
@@ -156,7 +155,7 @@ void	set_bg_gradients(mlx_t* mlx, mlx_image_t **bg_gradients)
 					gradient = 0;
 				else if (gradient > 1)
 					gradient = 1;
-				newcolor = (unsigned)(gradient * 153) << 24 | (unsigned)(gradient * 153) << 8 | (unsigned)(gradient * 255);
+				newcolor = (unsigned)(gradient * 140) << 24 | (unsigned)(gradient * 140) << 8 | (unsigned)(gradient * 200);
 				mlx_put_pixel(bg_gradients[i], x, y, newcolor);
 			}
 		}
@@ -180,6 +179,7 @@ void	set_background(mlx_t* mlx, int color, game_t *game)
 	mlx_image_to_window(mlx, image, 0, 0);
 	for (int i = 0; i < 6; i++)
 		mlx_image_to_window(mlx, game->bg_gradients[i], 0, 0)->z = -1;
+	game->bg_gradients[game->gravity]->instances->z = 1;
 }
 
 void	make_first_frame(mlx_t *mlx, game_t *game, grid_t *grid)
@@ -190,10 +190,18 @@ void	make_first_frame(mlx_t *mlx, game_t *game, grid_t *grid)
 	mlx_image_to_window(mlx, grid->grid, 0, 0);
 }
 
-// bool	any(int key)
-// {
-// 	return (key == MLX_KEY_KP_8 || key == MLX_KEY_KP_5 || key == MLX_KEY_KP_9 || key == MLX_KEY_KP_6 || key == MLX_KEY_KP_4 || key == MLX_KEY_KP_6);
-// }
+void	place_wall(mlx_t *mlx, game_t *game, int q, int r, int s)
+{
+	cell_t	*wall = game_get(game , q, r, s);
+	
+	for (int i = 0; i < 6; i++)
+		if (wall->neighbors[i] != NULL)
+			wall->neighbors[i]->neighbors[(i + 3) % 6] = NULL;
+	
+	place_hexagon(mlx, wall, &game->wall, game);
+}
+
+
 
 static void	process_movement(mlx_key_data_t keydata, void* param)
 {
@@ -226,7 +234,7 @@ static void	frame(void *param)
 	cluster_t	*data = (cluster_t*)param;
 
 	data->time += data->mlx->delta_time;
-	if (data->time > 0.0001)
+	if (data->time > 0.00001)
 	{
 		data->time = 0;
 		data->moving = move_hexagons(data->mlx, &data->game);
@@ -254,6 +262,10 @@ int main(int argc, char **argv)
 	data.time = 0;
 	data.winner = -1;
 	make_first_frame(data.mlx, &data.game, &data.grid);
+	hexagon_init(data.mlx, &data.game.wall, data.game.cell_diagonal, data.game.cell_height, 0x111111FF);
+	place_wall(data.mlx, &data.game, 2, 1, -3);
+	place_wall(data.mlx, &data.game, 2, 2, -4);
+	place_wall(data.mlx, &data.game, 3, -3, 0);
 	mlx_key_hook(data.mlx, process_movement, &data);
 	mlx_loop_hook(data.mlx, frame, &data);
 	mlx_loop(data.mlx);
