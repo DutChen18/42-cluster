@@ -134,11 +134,11 @@ int game_turn(game_t *game)
 	a = game_take_random(game);
 	if (a == -1)
 		return !game->turn;
-	game->chip_counts[a] += 1;
+	game->chip_counts[a] -= 1;
 	b = game_take_random(game);
 	if (b == -1)
 		return !game->turn;
-	game->chip_counts[b] += 1;
+	game->chip_counts[b] -= 1;
 	fprintf(game->players[game->turn].out, "chips %d %d\n", a, b);
 
 	// Get action from player
