@@ -25,6 +25,7 @@ int main(void)
 	setbuf(stdin, NULL);
 	setbuf(stderr, NULL);
 	scanf(" init %d %d %d %d", &color_count, &chip_count, &grid_size, &id);
+	printf("color %u\n", arc4random() % 0x1000000);
 	if (id == 1) {
 		read_action(action, &pos, &value);
 	}

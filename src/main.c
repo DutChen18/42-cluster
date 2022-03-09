@@ -165,18 +165,26 @@ int main(int argc, char **argv)
 	mlx_t		*mlx;
 	config_t	config;
 
-	(void)argc;
+	if (argc != 3) {
+		fprintf(stderr, "usage: %s [player 1] [player 2]", argv[0]);
+		return EXIT_FAILURE;
+	}
 	config_read(&config, "config.txt");
 	game_init(&data.game, &config);
-	game_start(&data.game, argv[1], argv[2]);
-	mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 1);
-	visuals_init(&data.visuals, mlx, &data.game);
-	data.time = 0;
-	data.winner = -1;
-	data.needs_move = false;
-	make_first_frame(&data.visuals, &data.game);
-	mlx_key_hook(mlx, process_movement, &data);
-	mlx_loop_hook(mlx, frame, &data);
-	mlx_loop(mlx);
-	return (EXIT_SUCCESS);
+	data.winner = game_start(&data.game, argv[1], argv[2]);
+	if (config.use_mlx) {
+		mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 1);
+		visuals_init(&data.visuals, mlx, &data.game);
+		data.time = 0;
+		data.needs_move = false;
+		make_first_frame(&data.visuals, &data.game);
+		mlx_key_hook(mlx, process_movement, &data);
+		mlx_loop_hook(mlx, frame, &data);
+		mlx_loop(mlx);
+	} else {
+		while (data.winner == -1) {
+			data.winner = game_turn(&data.game);
+		}
+	}
+	return EXIT_SUCCESS;
 }

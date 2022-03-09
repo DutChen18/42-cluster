@@ -137,7 +137,7 @@ cell_t *game_update(game_t *game, cell_t *cell);
 void game_rotate(game_t *game, int gravity);
 void game_drop(game_t *game, int q, int r, int s, int value);
 int game_winner(game_t *game);
-void game_start(game_t *game, const char *p1, const char *p2);
+int game_start(game_t *game, const char *p1, const char *p2);
 int game_turn(game_t *game);
 
 void grid_init(visuals_t *visuals, game_t *game);

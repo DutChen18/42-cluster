@@ -75,10 +75,14 @@ static void handler(int sig)
 	(void) sig;
 }
 
-void game_start(game_t *game, const char *p1, const char *p2)
+int game_start(game_t *game, const char *p1, const char *p2)
 {
+	unsigned c1, c2;
+	char action[8];
+
 	popen2(p1, &game->players[0]);
 	popen2(p2, &game->players[1]);
+
 	fprintf(game->players[0].out, "init %d %d %d 0\n",
 		game->config->color_count,
 		game->cell_count / game->config->color_count,
@@ -87,6 +91,21 @@ void game_start(game_t *game, const char *p1, const char *p2)
 		game->config->color_count,
 		game->cell_count / game->config->color_count,
 		game->config->grid_size);
+
+	if (fscanf(game->players[0].in, "%7s", action) != 1)
+		return 1;
+	if (strcmp(action, "color") != 0)
+		return 1;
+	if (fscanf(game->players[0].in, "%u", &c1) != 1)
+		return 1;
+	if (fscanf(game->players[1].in, "%7s", action) != 1)
+		return 0;
+	if (strcmp(action, "color") != 0)
+		return 0;
+	if (fscanf(game->players[1].in, "%u", &c2) != 1)
+		return 0;
+	// create_chip_colors(game, c1 << 8 | 0xFF, c2 << 8 | 0xFF);
+	return -1;
 }
 
 int game_turn(game_t *game)
