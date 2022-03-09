@@ -12,3 +12,6 @@ color_count 2
 
 # colors in a row required to win
 win_length 4
+
+# time bots have to respond in seconds
+timeout 1.0

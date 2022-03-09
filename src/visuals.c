@@ -129,6 +129,7 @@ void set_bg_gradients(mlx_t* mlx, mlx_image_t **bg_gradients)
 void visuals_init(visuals_t *visuals, mlx_t *mlx, game_t *game)
 {
 	visuals->mlx = mlx;
+	visuals->skip_next = false;
 	set_sizes_cells(visuals, game->config->grid_size * 2 - 1, 4 + 6 * (game->config->grid_size - 1));
 	visuals->hexa_tiles = malloc(sizeof(*visuals->hexa_tiles) * 4);
 	for (int i = 0; i < game->config->color_count; i++)

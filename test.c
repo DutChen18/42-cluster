@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 void read_action(char *action, int *q, int *r, int *s, int *value)
 {

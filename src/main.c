@@ -128,6 +128,21 @@ static void	frame(void *param)
 {
 	cluster_t	*data = (cluster_t*)param;
 
+	if (data->visuals.skip_next)
+	{
+		data->visuals.skip_next = false;
+		return;
+	}
+	if (data->needs_move)
+	{
+		data->needs_move = false;
+		data->visuals.skip_next = true;
+		data->winner = game_turn(&data->game);
+		move_hexagons(&data->visuals, &data->game);
+		data->time = 0;
+		return;
+	}
+
 	data->time += data->visuals.mlx->delta_time;
 	while (data->time > data->game.config->bot_speed)
 	{
@@ -135,9 +150,7 @@ static void	frame(void *param)
 		data->moving = move_hexagons(&data->visuals, &data->game);
 		if (!data->moving && data->winner == -1)
 		{
-			data->winner = game_turn(&data->game);
-			move_hexagons(&data->visuals, &data->game);
-			data->time = 0;
+			data->needs_move = true;
 			break;
 		}
 	}
@@ -160,6 +173,7 @@ int main(int argc, char **argv)
 	visuals_init(&data.visuals, mlx, &data.game);
 	data.time = 0;
 	data.winner = -1;
+	data.needs_move = false;
 	make_first_frame(&data.visuals, &data.game);
 	mlx_key_hook(mlx, process_movement, &data);
 	mlx_loop_hook(mlx, frame, &data);

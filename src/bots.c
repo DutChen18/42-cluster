@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/time.h>
+#include <math.h>
+#include <signal.h>
 
 static void popen2(const char* path, player_t* player)
 {
@@ -46,6 +49,11 @@ static int game_take_random(game_t *game)
 	return value;
 }
 
+static void handler(int sig)
+{
+	(void) sig;
+}
+
 void game_start(game_t *game, const char *p1, const char *p2)
 {
 	popen2(p1, &game->players[0]);
@@ -65,6 +73,22 @@ int game_turn(game_t *game)
 	int a, b;
 	int q, r, s, value;
 	char action[8];
+	struct itimerval tv;
+	struct sigaction act;
+	float i, f;
+
+	// Set signal handler
+	act.sa_handler = handler;
+	act.sa_flags = 0;
+	sigemptyset(&act.sa_mask);
+	sigaction(SIGALRM, &act, NULL);
+
+	// Arm timer
+	tv.it_interval = (struct timeval) { .tv_sec = 0, .tv_usec = 0 };
+	f = modff(game->config->timeout, &i);
+	tv.it_value.tv_sec = i;
+	tv.it_value.tv_usec = f * 1000000;
+	setitimer(ITIMER_REAL, &tv, NULL);
 
 	// Take chips from bag
 	a = game_take_random(game);
@@ -112,6 +136,10 @@ int game_turn(game_t *game)
 		// Invalid action
 		return !game->turn;
 	}
+
+	// Disarm timer
+	tv.it_value = (struct timeval) { .tv_sec = 0, .tv_usec = 0 };
+	setitimer(ITIMER_REAL, &tv, NULL);
 
 	// Invert turn and check winner
 	game->turn = !game->turn;

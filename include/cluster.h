@@ -77,6 +77,7 @@ struct config {
 	int		color_count;
 	float	bot_speed;
 	int		win_length;
+	float	timeout;
 };
 
 // Structure used for bot implementation
@@ -105,6 +106,7 @@ struct visuals {
 	hexagon_t	*hexa_tiles;
 	mlx_image_t	*bg_gradients[6];
 	grid_t		grid;
+	bool		skip_next;
 };
 
 // All data is stored in this structure
@@ -115,6 +117,7 @@ struct cluster {
 	bool			moving;
 	double			time;
 	int				winner;
+	bool			needs_move;
 };
 
 // color functions
