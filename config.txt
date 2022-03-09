@@ -2,10 +2,10 @@
 use_mlx 1
 
 # bot speed, lower = faster
-bot_speed 0.001
+bot_speed 0.01
 
 # side length of the game grid
-grid_size 4
+grid_size 20
 
 # number of colors per player
 color_count 2

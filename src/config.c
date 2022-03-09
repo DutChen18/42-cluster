@@ -19,6 +19,12 @@ void config_read(config_t *config, const char *path)
 			config->color_count *= 2;
 		} else if (strcmp(key, "win_length") == 0) {
 			fscanf(file, "%d", &config->win_length);
+		} else if (strcmp(key, "#") == 0) {
+			while (1) {
+				int c = fgetc(file);
+				if (c == '\n' || c == EOF)
+					break;
+			}
 		}
 	}
 }
