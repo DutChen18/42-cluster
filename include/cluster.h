@@ -122,6 +122,7 @@ struct cluster {
 
 // color functions
 int	create_color(int r, int g, int b, int t);
+void create_chip_colors(game_t *game, unsigned base_color_p1, unsigned base_color_p2);
 
 // coordinate functions
 void coord_convert(float *x, float *y, int q, int r, int s);
