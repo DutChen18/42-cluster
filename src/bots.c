@@ -49,6 +49,27 @@ static int game_take_random(game_t *game)
 	return value;
 }
 
+static void compute_pos(int pos, int size, int gravity, int *q, int *r, int *s)
+{
+	size -= 1;
+	*q = pos;
+	if (pos < 0) {
+		*r = -size - pos;
+		*s = size;
+	} else {
+		*r = -size;
+		*s = size - pos;
+	}
+	while (gravity > -3)
+	{
+		int tmp = *q;
+		*q = -*r;
+		*r = -*s;
+		*s = -tmp;
+		gravity -= 1;
+	}
+}
+
 static void handler(int sig)
 {
 	(void) sig;
@@ -71,7 +92,7 @@ void game_start(game_t *game, const char *p1, const char *p2)
 int game_turn(game_t *game)
 {
 	int a, b;
-	int q, r, s, value;
+	int q, r, s, value, pos;
 	char action[8];
 	struct itimerval tv;
 	struct sigaction act;
@@ -117,8 +138,9 @@ int game_turn(game_t *game)
 		game_rotate(game, value);
 	} else if (strcmp(action, "drop") == 0) {
 		// Get and validate parameters
-		if (fscanf(game->players[game->turn].in, "%d %d %d %d", &q, &r, &s, &value) != 4)
+		if (fscanf(game->players[game->turn].in, "%d %d", &pos, &value) != 2)
 			return !game->turn;
+		compute_pos(pos, game->config->grid_size, game->gravity, &q, &r, &s);
 		cell_t *cell = game_get(game, q, r, s);
 		if (cell == NULL || cell->chip.value != -1
 			|| value < game->turn * game->config->color_count / 2
@@ -130,7 +152,7 @@ int game_turn(game_t *game)
 			game->chip_counts[b] += 1;
 		else
 			game->chip_counts[a] += 1;
-		fprintf(game->players[!game->turn].out, "drop %d %d %d %d\n", q, r, s, value);
+		fprintf(game->players[!game->turn].out, "drop %d %d\n", pos, value);
 		game_drop(game, q, r, s, value);
 	} else {
 		// Invalid action
