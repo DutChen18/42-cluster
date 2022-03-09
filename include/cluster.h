@@ -72,6 +72,7 @@ struct grid {
 };
 
 struct config {
+	int		use_mlx;
 	int		grid_size;
 	int		color_count;
 	float	bot_speed;
@@ -139,5 +140,7 @@ int game_turn(game_t *game);
 void grid_init(visuals_t *visuals, game_t *game);
 void set_bg_gradients(mlx_t* mlx, mlx_image_t **bg_gradients);
 void visuals_init(visuals_t *visuals, mlx_t *mlx, game_t *game);
+
+void config_read(config_t *config, const char *path);
 
 #endif // CLUSTER_H

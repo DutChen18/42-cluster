@@ -129,15 +129,16 @@ static void	frame(void *param)
 	cluster_t	*data = (cluster_t*)param;
 
 	data->time += data->visuals.mlx->delta_time;
-	if (data->time > data->game.config->bot_speed)
+	while (data->time > data->game.config->bot_speed)
 	{
-		data->time = 0;
+		data->time -= data->game.config->bot_speed;
 		data->moving = move_hexagons(&data->visuals, &data->game);
 		if (!data->moving && data->winner == -1)
 		{
 			data->winner = game_turn(&data->game);
 			move_hexagons(&data->visuals, &data->game);
 			data->time = 0;
+			break;
 		}
 	}
 	for (int i = 0; i < 6; i++)
@@ -152,14 +153,11 @@ int main(int argc, char **argv)
 	config_t	config;
 
 	(void)argc;
-	config.grid_size = 20;
-	config.color_count = 4;
-	config.bot_speed = 0.001;
-	config.win_length = 4;
-	mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 1);
+	config_read(&config, "config.txt");
 	game_init(&data.game, &config);
-	visuals_init(&data.visuals, mlx, &data.game);
 	game_start(&data.game, argv[1], argv[2]);
+	mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 1);
+	visuals_init(&data.visuals, mlx, &data.game);
 	data.time = 0;
 	data.winner = -1;
 	make_first_frame(&data.visuals, &data.game);

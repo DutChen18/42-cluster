@@ -1,0 +1,14 @@
+# whether to draw visuals
+use_mlx 1
+
+# bot speed, lower = faster
+bot_speed 0.001
+
+# side length of the game grid
+grid_size 4
+
+# number of colors per player
+color_count 2
+
+# colors in a row required to win
+win_length 4
