@@ -98,15 +98,9 @@ void set_bg_gradients(mlx_t* mlx, mlx_image_t **bg_gradients)
 	float			y2;
 	unsigned int	newcolor;
 
-	bg_gradients[0] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	bg_gradients[1] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	bg_gradients[2] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	bg_gradients[3] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	bg_gradients[4] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	bg_gradients[5] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-
 	for (int i = 0; i < 6; i++)
 	{
+		bg_gradients[i] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
 		for (int y = 0; y < WINDOW_HEIGHT; y++)
 		{
 			for (int x = 0; x < WINDOW_WIDTH; x++)
