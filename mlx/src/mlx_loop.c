@@ -6,7 +6,7 @@
 /*   By: W2Wizard <w2.wizzard@gmail.com>              +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2021/12/28 01:24:36 by W2Wizard      #+#    #+#                 */
-/*   Updated: 2022/03/08 17:59:37 by avan-ber      ########   odam.nl         */
+/*   Updated: 2022/03/09 09:13:13 by avan-ber      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,11 @@ bool mlx_loop_hook(mlx_t* mlx, void (*f)(void*), void* param)
 	const mlx_ctx_t	*mlxctx = mlx->context;
 	mlx_lstadd_back((mlx_list_t**)(&mlxctx->hooks), lst);
 	return (true);
+}
+
+void	add_wall(game_t *game, int q, int r, int s)
+{
+	
 }
 
 // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
