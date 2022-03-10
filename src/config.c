@@ -25,6 +25,8 @@ void config_read(config_t *config, const char *path)
 			fscanf(file, "%d", &config->window_width);
 		} else if (strcmp(key, "window_height") == 0) {
 			fscanf(file, "%d", &config->window_height);
+		} else if (strcmp(key, "debug") == 0) {
+			fscanf(file, "%d", &config->debug);
 		} else if (strcmp(key, "#") == 0) {
 			while (1) {
 				int c = fgetc(file);
