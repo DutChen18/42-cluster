@@ -34,7 +34,7 @@ test: all
 bot_test: all bot
 	./cluster ./bot ./bot
 
-bot:
+bot: $(botfile)
 	$(CC) $(botfile) -o $@
 
 re: clean

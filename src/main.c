@@ -168,29 +168,6 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	place_gui_cells(visuals, config->color_count);
 }
 
-// void	gui_init(visuals_t *visuals, config_t *config)
-// {
-// 	int			x, y, mirror_x;
-// 	const int	height = visuals->grid.height / 14;
-// 	const int	width = get_width_from_height(height);
-// 	const int	border_size = get_border_size(height);
-
-// 	hexagon_border_init(visuals, &visuals->grid.gui, width, height, 0x222222FF);
-// 	y = WINDOW_HEIGHT / 2 + visuals->cell_height * (config->grid_size - 0.5) - 1.25 * height;
-// 	x = WINDOW_WIDTH / 2 - visuals->cell_diagonal * config->grid_size / 2;
-// 	mirror_x = WINDOW_WIDTH - x - width;
-// 	mlx_image_to_window(visuals->mlx, visuals->grid.gui.img, x, y);
-// 	mlx_image_to_window(visuals->mlx, visuals->grid.gui.img, mirror_x, y);
-// 	x -= width / 4 * 3 - border_size / 4;
-// 	y -= height / 2 - border_size / 4;
-// 	mirror_x = WINDOW_WIDTH - x - width;
-// 	mlx_image_to_window(visuals->mlx, visuals->grid.gui.img, x, y);
-// 	mlx_image_to_window(visuals->mlx, visuals->grid.gui.img, mirror_x, y);
-// 	visuals->grid.colors_gui = malloc(sizeof(*visuals->grid.colors_gui) * config->color_count * 2);
-// 	for (int i = 0; i < config->color_count * 2; i++)
-// 		hexagon_init(visuals->mlx, &visuals->grid.colors_gui[i])
-// }
-
 void make_first_frame(visuals_t *visuals, game_t *game, config_t *config)
 {
 	set_background(visuals, 0x333333FF);
@@ -239,6 +216,28 @@ static void	frame(void *param)
 {
 	cluster_t	*data = (cluster_t*)param;
 
+	if (data->visuals.skip_next)
+	{
+		data->visuals.skip_next = false;
+		return;
+	}
+	if (data->needs_move)
+	{
+		data->needs_move = false;
+		data->visuals.skip_next = true;
+		char *sep = "";
+		for (int i = 0; i < data->game.config->color_count; i++)
+		{
+			printf("%s%d", sep, data->game.chip_counts[i]);
+			sep = " ";
+		}
+		printf("\n");
+		data->winner = game_turn(&data->game);
+		move_hexagons(&data->visuals, &data->game);
+		data->time = 0;
+		return;
+	}
+
 	data->time += data->visuals.mlx->delta_time;
 	while (data->time > data->game.config->bot_speed)
 	{
@@ -246,9 +245,7 @@ static void	frame(void *param)
 		data->moving = move_hexagons(&data->visuals, &data->game);
 		if (!data->moving && data->winner == -1)
 		{
-			data->winner = game_turn(&data->game);
-			move_hexagons(&data->visuals, &data->game);
-			data->time = 0;
+			data->needs_move = true;
 			break;
 		}
 	}
@@ -263,20 +260,29 @@ int main(int argc, char **argv)
 	mlx_t		*mlx;
 	config_t	config;
 
-	(void)argc;
+	if (argc != 3) {
+		fprintf(stderr, "usage: %s [player 1] [player 2]", argv[0]);
+		return EXIT_FAILURE;
+	}
 	config_read(&config, "config.txt");
 	game_init(&data.game, &config);
-	game_start(&data.game, argv[1], argv[2]);
-	mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 1);
-	visuals_init(&data.visuals, mlx, &data.game);
-	data.time = 0;
-	data.winner = -1;
-	// place_wall(&data.game, 2, 1, -3);
-	// place_wall(&data.game, 2, 2, -4);
-	// place_wall(&data.game, 3, -3, 0);
-	make_first_frame(&data.visuals, &data.game, &config);
-	mlx_key_hook(mlx, process_movement, &data);
-	mlx_loop_hook(mlx, frame, &data);
-	mlx_loop(mlx);
-	return (EXIT_SUCCESS);
+	data.winner = game_start(&data.game, argv[1], argv[2]);
+	if (config.use_mlx) {
+		mlx = mlx_init(WINDOW_WIDTH, WINDOW_HEIGHT, "cluster", 1);
+		visuals_init(&data.visuals, mlx, &data.game);
+		data.time = 0;
+		data.needs_move = false;
+		// place_wall(&data.game, 2, 1, -3);
+		// place_wall(&data.game, 2, 2, -4);
+		// place_wall(&data.game, 3, -3, 0);
+		make_first_frame(&data.visuals, &data.game, &config);
+		mlx_key_hook(mlx, process_movement, &data);
+		mlx_loop_hook(mlx, frame, &data);
+		mlx_loop(mlx);
+	} else {
+		while (data.winner == -1) {
+			data.winner = game_turn(&data.game);
+		}
+	}
+	return EXIT_SUCCESS;
 }

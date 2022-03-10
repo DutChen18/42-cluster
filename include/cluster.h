@@ -87,6 +87,7 @@ struct config {
 	int		color_count;
 	float	bot_speed;
 	int		win_length;
+	float	timeout;
 };
 
 // Structure used for bot implementation
@@ -124,6 +125,7 @@ struct visuals {
 	mlx_image_t	*bg_gradients[6];
 	grid_t		grid;
 	gui_t		gui[4];
+	bool		skip_next;
 };
 
 // All data is stored in this structure
@@ -134,6 +136,7 @@ struct cluster {
 	bool			moving;
 	double			time;
 	int				winner;
+	bool			needs_move;
 };
 
 int		get_border_size(int height);
@@ -143,6 +146,7 @@ void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color);
 
 // color functions
 int	create_color(int r, int g, int b, int t);
+void create_chip_colors(game_t *game, unsigned base_color_p1, unsigned base_color_p2);
 
 // coordinate functions
 void coord_convert(float *x, float *y, int q, int r, int s);
@@ -158,7 +162,7 @@ cell_t *game_update(game_t *game, cell_t *cell);
 void game_rotate(game_t *game, int gravity);
 void game_drop(game_t *game, int q, int r, int s, int value);
 int game_winner(game_t *game);
-void game_start(game_t *game, const char *p1, const char *p2);
+int game_start(game_t *game, const char *p1, const char *p2);
 int game_turn(game_t *game);
 
 void grid_init(visuals_t *visuals, game_t *game);

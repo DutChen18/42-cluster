@@ -83,7 +83,6 @@ void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
 				mlx_put_pixel(obj->img, x, y, new_color);
 			}
 		}
-	mlx_put_pixel(obj->img, obj->width/2, obj->height/2, 0x00FF00FF); //even voor het beeld
 }
 
 static void set_sizes_cells(visuals_t *visuals, int height, int width)
@@ -116,15 +115,9 @@ void set_bg_gradients(mlx_t* mlx, mlx_image_t **bg_gradients)
 	float			y2;
 	unsigned int	newcolor;
 
-	bg_gradients[0] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	bg_gradients[1] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	bg_gradients[2] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	bg_gradients[3] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	bg_gradients[4] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	bg_gradients[5] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-
 	for (int i = 0; i < 6; i++)
 	{
+		bg_gradients[i] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
 		for (int y = 0; y < WINDOW_HEIGHT; y++)
 		{
 			for (int x = 0; x < WINDOW_WIDTH; x++)
@@ -147,6 +140,7 @@ void set_bg_gradients(mlx_t* mlx, mlx_image_t **bg_gradients)
 void visuals_init(visuals_t *visuals, mlx_t *mlx, game_t *game)
 {
 	visuals->mlx = mlx;
+	visuals->skip_next = false;
 	set_sizes_cells(visuals, game->config->grid_size * 2 - 1, 4 + 6 * (game->config->grid_size - 1));
 	visuals->hexa_tiles = malloc(sizeof(*visuals->hexa_tiles) * game->config->color_count);
 	for (int i = 0; i < game->config->color_count; i++)
