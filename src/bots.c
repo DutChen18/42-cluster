@@ -105,7 +105,8 @@ static void disarm_timer(void)
 
 int game_start(game_t *game, const char *p1, const char *p2)
 {
-	unsigned c1, c2;
+	int c1, c2;
+	unsigned col1, col2;
 	char action[8];
 
 	arm_timer(game->config->timeout);
@@ -118,8 +119,16 @@ int game_start(game_t *game, const char *p1, const char *p2)
 		return 1;
 	if (strcmp(action, "color") != 0)
 		return 1;
-	if (fscanf(game->players[0].in, "%u", &c1) != 1)
+	if (fscanf(game->players[0].in, "%d", &c1) != 1)
 		return 1;
+	switch (c1) {
+	case 0: col1 = 0xFF0000; break;
+	case 1: col1 = 0xFFFF00; break;
+	case 3: col1 = 0x00FFFF; break;
+	case 4: col1 = 0x0000FF; break;
+	case 5: col1 = 0xFF00FF; break;
+	default: return 1;
+	}
 	disarm_timer();
 	
 	arm_timer(game->config->timeout);
@@ -132,11 +141,21 @@ int game_start(game_t *game, const char *p1, const char *p2)
 		return 0;
 	if (strcmp(action, "color") != 0)
 		return 0;
-	if (fscanf(game->players[1].in, "%u", &c2) != 1)
+	if (fscanf(game->players[1].in, "%d", &c2) != 1)
 		return 0;
+	switch (c2) {
+	case 0: col2 = 0xFF0000; break;
+	case 1: col2 = 0xFFFF00; break;
+	case 3: col2 = 0x00FFFF; break;
+	case 4: col2 = 0x0000FF; break;
+	case 5: col2 = 0xFF00FF; break;
+	default: return 0;
+	}
 	disarm_timer();
 
-	create_chip_colors(game, c1 << 8 | 0xFF, c2 << 8 | 0xFF);
+	if (col1 == 0xFF00FF && col2 == 0xFF00FF)
+		col2 = 0xFFFF00;
+	create_chip_colors(game, col1 << 8 | 0xFF, col2 << 8 | 0xFF);
 	return -1;
 }
 
