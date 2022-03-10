@@ -108,9 +108,6 @@ void place_color_gui(config_t *config, visuals_t *visuals, cell_t *cell, hexagon
 	else
 		texture->img->instances[index].z = GRID_ODD;
 	hexagon_t *hex = &visuals->hexa_tiles[color];
-	(void)hex;
-	printf("texture: width=%d	height=%d\n", texture->width, texture->height);
-	printf("hex: width=%d	height=%d\n", hex->width, hex->height);
 	x = (int) (visuals->cell_height - border_size / 2) * (cell->x + offset) + (int) (config->window_width / 2 - hex->width / 2);
 	y = (int) (visuals->cell_height - border_size / 2) * cell->y + (int) (config->window_height / 2 - hex->height / 2);
 	index = mlx_image_to_window(visuals->mlx, hex->img, x, y);
