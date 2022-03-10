@@ -116,12 +116,21 @@ int game_start(game_t *game, const char *p1, const char *p2)
 		game->cell_count / game->config->color_count,
 		game->config->grid_size,
 		game->config->timeout);
-	if (fscanf(game->players[0].in, "%7s", action) != 1)
+	if (fscanf(game->players[0].in, "%7s", action) != 1) {
+		if (game->config->debug)
+			fprintf(stderr, "player 1 timed out\n");
 		return 1;
-	if (strcmp(action, "color") != 0)
+	}
+	if (strcmp(action, "color") != 0) {
+		if (game->config->debug)
+			fprintf(stderr, "player 1 send a wrong command: \"%s\" expected \"color\"\n", action);
 		return 1;
-	if (fscanf(game->players[0].in, "%d", &c1) != 1)
+	}
+	if (fscanf(game->players[0].in, "%d", &c1) != 1) {
+		if (game->config->debug)
+			fprintf(stderr, "player 1 timed out\n");
 		return 1;
+	}
 	switch (c1) {
 	case 0: col1 = 0xFF0000; break;
 	case 1: col1 = 0xFFFF00; break;
@@ -139,12 +148,21 @@ int game_start(game_t *game, const char *p1, const char *p2)
 		game->cell_count / game->config->color_count,
 		game->config->grid_size,
 		game->config->timeout);
-	if (fscanf(game->players[1].in, "%7s", action) != 1)
+	if (fscanf(game->players[1].in, "%7s", action) != 1) {
+		if (game->config->debug)
+			fprintf(stderr, "player 2 timed out\n");
 		return 0;
-	if (strcmp(action, "color") != 0)
+	}
+	if (strcmp(action, "color") != 0) {
+		if (game->config->debug)
+			fprintf(stderr, "player 2 send a wrong command: \"%s\" expected \"color\"\n", action);
 		return 0;
-	if (fscanf(game->players[1].in, "%d", &c2) != 1)
+	}
+	if (fscanf(game->players[1].in, "%d", &c2) != 1) {
+		if (game->config->debug)
+			fprintf(stderr, "player 2 timed out\n");
 		return 0;
+	}
 	switch (c2) {
 	case 0: col2 = 0xFF0000; break;
 	case 1: col2 = 0xFFFF00; break;
@@ -190,8 +208,11 @@ int game_turn(game_t *game)
 	
 	if (strcmp(action, "rotate") == 0) {
 		// Get and validate parameters
-		if (fscanf(game->players[game->turn].in, "%d", &value) != 1)
+		if (fscanf(game->players[game->turn].in, "%d", &value) != 1) {
+			if (game->config->debug)
+				fprintf(stderr, "player 2 timed out\n");
 			return !game->turn;
+		}
 		if (value < 0 || value >= 6)
 			return !game->turn;
 
