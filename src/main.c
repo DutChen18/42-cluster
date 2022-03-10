@@ -225,13 +225,6 @@ static void	frame(void *param)
 	{
 		data->needs_move = false;
 		data->visuals.skip_next = true;
-		char *sep = "";
-		for (int i = 0; i < data->game.config->color_count; i++)
-		{
-			printf("%s%d", sep, data->game.chip_counts[i]);
-			sep = " ";
-		}
-		printf("\n");
 		data->winner = game_turn(&data->game);
 		move_hexagons(&data->visuals, &data->game);
 		data->time = 0;

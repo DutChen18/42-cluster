@@ -19,3 +19,6 @@ timeout 1.0
 # window size
 window_width 1080
 window_height 1080
+
+# debug mode
+debug 1
