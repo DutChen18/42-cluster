@@ -18,7 +18,7 @@ static void popen2(const char* path, player_t* player)
 		close(out[STDIN_FILENO]);
 		dup2(in[STDIN_FILENO], STDIN_FILENO);
 		dup2(out[STDOUT_FILENO], STDOUT_FILENO);
-		execl(path, "", NULL);
+		execl("/bin/sh", "/bin/sh", "-c", path, NULL);
 		exit(EXIT_FAILURE);
 	}
 	else
@@ -119,7 +119,7 @@ int game_start(game_t *game, const char *p1, const char *p2)
 	if (fscanf(game->players[0].in, "%7s", action) != 1) {
 		disarm_timer();
 		if (game->config->debug)
-			fprintf(stderr, "Player 1 timed out sending color command\n");
+			fprintf(stderr, "Player 1 did not send color command\n");
 		return 1;
 	}
 	if (strcmp(action, "color") != 0) {
@@ -131,7 +131,7 @@ int game_start(game_t *game, const char *p1, const char *p2)
 	if (fscanf(game->players[0].in, "%d", &c1) != 1) {
 		disarm_timer();
 		if (game->config->debug)
-			fprintf(stderr, "Player 1 timed out giving color value\n");
+			fprintf(stderr, "Player 1 did not send color value\n");
 		return 1;
 	}
 	switch (c1) {
@@ -158,7 +158,7 @@ int game_start(game_t *game, const char *p1, const char *p2)
 	if (fscanf(game->players[1].in, "%7s", action) != 1) {
 		disarm_timer();
 		if (game->config->debug)
-			fprintf(stderr, "Player 2 timed out sending color command\n");
+			fprintf(stderr, "Player 2 did not send color command\n");
 		return 0;
 	}
 	if (strcmp(action, "color") != 0) {
@@ -170,7 +170,7 @@ int game_start(game_t *game, const char *p1, const char *p2)
 	if (fscanf(game->players[1].in, "%d", &c2) != 1) {
 		disarm_timer();
 		if (game->config->debug)
-			fprintf(stderr, "Player 2 timed out giving color value\n");
+			fprintf(stderr, "Player 2 did not send color value\n");
 		return 0;
 	}
 	switch (c2) {
@@ -230,7 +230,7 @@ int game_turn(game_t *game)
 	if (fscanf(game->players[game->turn].in, "%7s", action) != 1) {
 		disarm_timer();
 		if (game->config->debug)
-			fprintf(stderr, "Player %d timed out giving action\n", game->turn + 1);
+			fprintf(stderr, "Player %d did not give action\n", game->turn + 1);
 		return !game->turn;
 	}
 	
@@ -239,7 +239,7 @@ int game_turn(game_t *game)
 		if (fscanf(game->players[game->turn].in, "%d", &value) != 1) {
 			disarm_timer();
 			if (game->config->debug)
-				fprintf(stderr, "Player %d timed out giving rotate value\n", game->turn + 1);
+				fprintf(stderr, "Player %d did not give rotate value\n", game->turn + 1);
 			return !game->turn;
 		}
 		if (value < 0 || value >= 6) {
@@ -257,7 +257,7 @@ int game_turn(game_t *game)
 		if (fscanf(game->players[game->turn].in, "%d %d", &pos, &value) != 2) {
 			disarm_timer();
 			if (game->config->debug)
-				fprintf(stderr, "Player %d timed out giving drop value\n", game->turn + 1);
+				fprintf(stderr, "Player %d did not give drop value\n", game->turn + 1);
 			return !game->turn;
 		}
 		compute_pos(pos, game->config->grid_size, game->gravity, &q, &r, &s);
