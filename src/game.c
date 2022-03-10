@@ -14,6 +14,7 @@ static void game_init_cells(game_t *game, config_t *config)
 					cell->q = q;
 					cell->r = r;
 					cell->s = s;
+					cell->wall = false;
 					coord_convert(&cell->x, &cell->y, q, r, s);
 					cell->chip.value = -1;
 					cell->chip.tile_index = -1;

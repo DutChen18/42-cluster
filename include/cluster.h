@@ -15,6 +15,15 @@
 # define NUMPAD_5_KEY 87
 # define NUMPAD_6_KEY 88
 
+//instance levels
+# define DISMISS -1
+# define BACKROUND 0
+# define GRADIENTS 1
+# define GRID_EVEN 20
+# define GRID_ODD 30
+# define HEXAGON_EVEN 40
+# define HEXAGON_ODD 50
+
 // Key values (also unused).
 # define UP_ARROW_KEY 126
 # define DOWN_ARROW_KEY 125
@@ -32,6 +41,7 @@ typedef struct player player_t;
 typedef struct cluster cluster_t;
 typedef struct config config_t;
 typedef struct visuals visuals_t;
+typedef struct gui gui_t;
 
 // Data that gets copied when a chip moves to another cell.
 struct chip {
@@ -46,6 +56,7 @@ struct chip {
 struct cell {
 	cell_t	*neighbors[6];
 	chip_t	chip;
+	bool	wall;
 	int		q, r, s;
 	float	x, y;
 };
@@ -84,6 +95,14 @@ struct player {
 	FILE	*out;
 };
 
+struct gui {
+	int			x;
+	int			y;
+	int			layer;
+	hexagon_t	*back_cell;
+	hexagon_t	*colors;
+};
+
 // All game logic is stored in here
 struct game {
 	config_t	*config;
@@ -94,6 +113,7 @@ struct game {
 	int			*chip_counts;
 	int			gravity;
 	int			turn;
+	int			chip_a, chip_b;
 };
 
 struct visuals {
@@ -103,6 +123,7 @@ struct visuals {
 	hexagon_t	*hexa_tiles;
 	mlx_image_t	*bg_gradients[6];
 	grid_t		grid;
+	gui_t		gui[4];
 	bool		skip_next;
 };
 
@@ -116,6 +137,11 @@ struct cluster {
 	int				winner;
 	bool			needs_move;
 };
+
+int		get_border_size(int height);
+void	hexagon_border_init(visuals_t *visuals, hexagon_t *obj, int width, int height, int color);
+void	place_border(config_t *config, visuals_t *visuals, cell_t *cell, hexagon_t *texture);
+void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color);
 
 // color functions
 int	create_color(int r, int g, int b, int t);
@@ -136,10 +162,11 @@ void game_rotate(game_t *game, int gravity);
 void game_drop(game_t *game, int q, int r, int s, int value);
 int game_winner(game_t *game);
 int game_start(game_t *game, const char *p1, const char *p2);
+void game_preturn(game_t *game);
 int game_turn(game_t *game);
 
 void grid_init(visuals_t *visuals, game_t *game);
-void set_bg_gradients(mlx_t* mlx, mlx_image_t **bg_gradients);
+void set_bg_gradients(config_t *config, mlx_t* mlx, mlx_image_t **bg_gradients);
 void visuals_init(visuals_t *visuals, mlx_t *mlx, game_t *game);
 
 void config_read(config_t *config, const char *path);

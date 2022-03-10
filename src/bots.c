@@ -75,71 +75,93 @@ static void handler(int sig)
 	(void) sig;
 }
 
+static void arm_timer(float timeout)
+{
+	struct itimerval tv;
+	struct sigaction act;
+	float i, f;
+
+	act.sa_handler = handler;
+	act.sa_flags = 0;
+	sigemptyset(&act.sa_mask);
+	sigaction(SIGALRM, &act, NULL);
+
+	tv.it_interval = (struct timeval) { .tv_sec = 0, .tv_usec = 0 };
+	f = modff(timeout, &i);
+	tv.it_value.tv_sec = i;
+	tv.it_value.tv_usec = f * 1000000;
+	setitimer(ITIMER_REAL, &tv, NULL);
+
+}
+
+static void disarm_timer(void)
+{
+	struct itimerval tv;
+
+	tv.it_interval = (struct timeval) { .tv_sec = 0, .tv_usec = 0 };
+	tv.it_value = (struct timeval) { .tv_sec = 0, .tv_usec = 0 };
+	setitimer(ITIMER_REAL, &tv, NULL);
+}
+
 int game_start(game_t *game, const char *p1, const char *p2)
 {
 	unsigned c1, c2;
 	char action[8];
 
+	arm_timer(game->config->timeout);
 	popen2(p1, &game->players[0]);
-	popen2(p2, &game->players[1]);
-
 	fprintf(game->players[0].out, "init %d %d %d 0\n",
 		game->config->color_count,
 		game->cell_count / game->config->color_count,
 		game->config->grid_size);
-	fprintf(game->players[1].out, "init %d %d %d 1\n",
-		game->config->color_count,
-		game->cell_count / game->config->color_count,
-		game->config->grid_size);
-
 	if (fscanf(game->players[0].in, "%7s", action) != 1)
 		return 1;
 	if (strcmp(action, "color") != 0)
 		return 1;
 	if (fscanf(game->players[0].in, "%u", &c1) != 1)
 		return 1;
+	disarm_timer();
+	
+	arm_timer(game->config->timeout);
+	popen2(p2, &game->players[1]);
+	fprintf(game->players[1].out, "init %d %d %d 1\n",
+		game->config->color_count,
+		game->cell_count / game->config->color_count,
+		game->config->grid_size);
 	if (fscanf(game->players[1].in, "%7s", action) != 1)
 		return 0;
 	if (strcmp(action, "color") != 0)
 		return 0;
 	if (fscanf(game->players[1].in, "%u", &c2) != 1)
 		return 0;
+	disarm_timer();
+
 	create_chip_colors(game, c1 << 8 | 0xFF, c2 << 8 | 0xFF);
 	return -1;
 }
 
+void game_preturn(game_t *game)
+{
+	game->chip_a = game_take_random(game);
+	game->chip_b = -1;
+	if (game->chip_a == -1)
+		return;
+	game->chip_counts[game->chip_a] -= 1;
+	game->chip_b = game_take_random(game);
+	if (game->chip_b == -1)
+		return;
+	game->chip_counts[game->chip_b] -= 1;
+}
+
 int game_turn(game_t *game)
 {
-	int a, b;
 	int q, r, s, value, pos;
 	char action[8];
-	struct itimerval tv;
-	struct sigaction act;
-	float i, f;
 
-	// Set signal handler
-	act.sa_handler = handler;
-	act.sa_flags = 0;
-	sigemptyset(&act.sa_mask);
-	sigaction(SIGALRM, &act, NULL);
-
-	// Arm timer
-	tv.it_interval = (struct timeval) { .tv_sec = 0, .tv_usec = 0 };
-	f = modff(game->config->timeout, &i);
-	tv.it_value.tv_sec = i;
-	tv.it_value.tv_usec = f * 1000000;
-	setitimer(ITIMER_REAL, &tv, NULL);
-
-	// Take chips from bag
-	a = game_take_random(game);
-	if (a == -1)
+	arm_timer(game->config->timeout);
+	if (game->chip_a == -1 || game->chip_b == -1)
 		return !game->turn;
-	game->chip_counts[a] -= 1;
-	b = game_take_random(game);
-	if (b == -1)
-		return !game->turn;
-	game->chip_counts[b] -= 1;
-	fprintf(game->players[game->turn].out, "chips %d %d\n", a, b);
+	fprintf(game->players[game->turn].out, "chips %d %d\n", game->chip_a, game->chip_b);
 
 	// Get action from player
 	if (fscanf(game->players[game->turn].in, "%7s", action) != 1)
@@ -167,20 +189,17 @@ int game_turn(game_t *game)
 			return !game->turn;
 
 		// Perform drop
-		if (value == a)
-			game->chip_counts[b] += 1;
+		if (value == game->chip_a)
+			game->chip_counts[game->chip_b] += 1;
 		else
-			game->chip_counts[a] += 1;
+			game->chip_counts[game->chip_a] += 1;
 		fprintf(game->players[!game->turn].out, "drop %d %d\n", pos, value);
 		game_drop(game, q, r, s, value);
 	} else {
 		// Invalid action
 		return !game->turn;
 	}
-
-	// Disarm timer
-	tv.it_value = (struct timeval) { .tv_sec = 0, .tv_usec = 0 };
-	setitimer(ITIMER_REAL, &tv, NULL);
+	disarm_timer();
 
 	// Invert turn and check winner
 	game->turn = !game->turn;

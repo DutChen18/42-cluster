@@ -2,11 +2,24 @@
 #include <math.h>
 #include <stdlib.h>
 
-static void hexagon_border_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
+int get_border_size(int height)
 {
+	int border_size;
+	border_size = height / 16;
+	if (border_size < 4)
+		border_size = 4;
+	if (border_size % 2 == 1)
+		border_size++;
+	return border_size;
+}
+
+void	hexagon_border_init(visuals_t *visuals, hexagon_t *obj, int width, int height, int color)
+{
+	const int border_size = get_border_size(height);
+
 	obj->width = width;
 	obj->height = height;
-	obj->img = mlx_new_image(mlx, obj->width, obj->height);
+	obj->img = mlx_new_image(visuals->mlx, obj->width, obj->height);
 	obj->color = color;
 	for (int x = 0; x < obj->width; x++)
 	{
@@ -16,34 +29,37 @@ static void hexagon_border_init(mlx_t *mlx, hexagon_t *obj, int width, int heigh
 			int temp_x = (int) (obj->width / 2 - abs(obj->width / 2 - x)) * sqrt(3);
 			if (temp_y <= temp_x)
 			{
-				if (temp_y > temp_x - GRID_BORDER_SIZE)
+				if (temp_y > temp_x - border_size)
 					mlx_put_pixel(obj->img, x, y, obj->color);
 				else
-				{
 					mlx_put_pixel(obj->img, x, y, 0x333333FF);
-				}
 			}
 		}
 	}
-	for(int y = 0; y < GRID_BORDER_SIZE / 2; y++)
+	for(int y = 0; y < border_size / 2; y++)
 	{
-		for (int x = width / 4; x < width / 4 * 3; x++)
+		for (int x = obj->width / 4; x < obj->width / 4 * 3; x++)
 		{
 			mlx_put_pixel(obj->img, x, y, obj->color);
-			mlx_put_pixel(obj->img, x, y + obj->height - GRID_BORDER_SIZE / 2, obj->color);
+			mlx_put_pixel(obj->img, x, y + obj->height - border_size / 2, obj->color);
 		}
 	}
 }
 
-static void place_border(visuals_t *visuals, cell_t *cell)
+void place_border(config_t *config, visuals_t *visuals, cell_t *cell, hexagon_t *texture)
 {
-	hexagon_t *hex = &visuals->grid.one_cell;
-	int x = (int) (visuals->cell_height - GRID_BORDER_SIZE / 2) * cell->x + (int) (WINDOW_WIDTH / 2 - hex->width / 2);
-	int y = (int) (visuals->cell_height - GRID_BORDER_SIZE / 2) * cell->y + (int) (WINDOW_HEIGHT / 2 - hex->height / 2);
-	mlx_image_to_window(visuals->mlx, hex->img, x, y);
+	int index;
+	const int border_size = get_border_size(visuals->cell_height);
+	int x = (int) (visuals->cell_height - border_size / 2) * cell->x + (int) (config->window_width / 2 - texture->width / 2);
+	int y = (int) (visuals->cell_height - border_size / 2) * cell->y + (int) (config->window_height / 2 - texture->height / 2);
+	index = mlx_image_to_window(visuals->mlx, texture->img, x, y);
+	if (cell->q % 2 == 0)
+		texture->img->instances[index].z = GRID_EVEN;
+	else
+		texture->img->instances[index].z = GRID_ODD;
 }
 
-static void hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
+void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
 {
 	float				gradient;
 	const long double	sqrt_3 = sqrt(3);
@@ -69,10 +85,10 @@ static void hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int 
 		}
 }
 
-static void set_sizes_cells(visuals_t *visuals, int height, int width)
+static void set_sizes_cells(config_t *config, visuals_t *visuals, int height, int width)
 {
-	visuals->cell_height = WINDOW_HEIGHT / height;
-	visuals->cell_diagonal = WINDOW_WIDTH / width * 4;
+	visuals->cell_height = config->window_height / height;
+	visuals->cell_diagonal = config->window_width / width * 4;
 	if (visuals->cell_height < get_height_from_width(visuals->cell_diagonal))
 		visuals->cell_diagonal = get_width_from_height(visuals->cell_height);
 	else
@@ -81,15 +97,17 @@ static void set_sizes_cells(visuals_t *visuals, int height, int width)
 
 void grid_init(visuals_t *visuals, game_t *game)
 {
-	hexagon_border_init(visuals->mlx, &visuals->grid.one_cell, visuals->cell_diagonal, visuals->cell_height, 0x222222FF);
-	visuals->grid.width = WINDOW_WIDTH;
-	visuals->grid.height = WINDOW_HEIGHT;
+	hexagon_border_init(visuals, &visuals->grid.one_cell, visuals->cell_diagonal, visuals->cell_height, 0x222222FF);
+	visuals->grid.width = game->config->window_width;
+	visuals->grid.height = game->config->window_height;
 	visuals->grid.grid = mlx_new_image(visuals->mlx, visuals->grid.width, visuals->grid.height);
 	for (int i = 0; i < game->cell_count; i++)
-		place_border(visuals, &game->cells[i]);
+		if (game->cells[i].wall == false)
+			place_border(game->config, visuals, &game->cells[i], &visuals->grid.one_cell);
+
 }
 
-void set_bg_gradients(mlx_t* mlx, mlx_image_t **bg_gradients)
+void set_bg_gradients(config_t *config, mlx_t* mlx, mlx_image_t **bg_gradients)
 {
 	float			gradient;
 	float			angle;
@@ -99,14 +117,14 @@ void set_bg_gradients(mlx_t* mlx, mlx_image_t **bg_gradients)
 
 	for (int i = 0; i < 6; i++)
 	{
-		bg_gradients[i] = mlx_new_image(mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-		for (int y = 0; y < WINDOW_HEIGHT; y++)
+		bg_gradients[i] = mlx_new_image(mlx, config->window_width, config->window_height);
+		for (int y = 0; y < config->window_height; y++)
 		{
-			for (int x = 0; x < WINDOW_WIDTH; x++)
+			for (int x = 0; x < config->window_width; x++)
 			{
 				angle = i * 3.14159 / 3;
-				y2 = (float) y / WINDOW_HEIGHT - 0.5;
-				x2 = (float) x / WINDOW_WIDTH - 0.5;
+				y2 = (float) y / config->window_height - 0.5;
+				x2 = (float) x / config->window_width - 0.5;
 				gradient = -y2 * cos(angle) + x2 * sin(angle) + 0.5;
 				if (gradient < 0)
 					gradient = 0;
@@ -123,8 +141,8 @@ void visuals_init(visuals_t *visuals, mlx_t *mlx, game_t *game)
 {
 	visuals->mlx = mlx;
 	visuals->skip_next = false;
-	set_sizes_cells(visuals, game->config->grid_size * 2 - 1, 4 + 6 * (game->config->grid_size - 1));
-	visuals->hexa_tiles = malloc(sizeof(*visuals->hexa_tiles) * 4);
+	set_sizes_cells(game->config, visuals, game->config->grid_size * 2 - 1, 4 + 6 * (game->config->grid_size - 1));
+	visuals->hexa_tiles = malloc(sizeof(*visuals->hexa_tiles) * game->config->color_count);
 	for (int i = 0; i < game->config->color_count; i++)
 		hexagon_init(mlx, &visuals->hexa_tiles[i], visuals->cell_diagonal, visuals->cell_height, game->colors[i]);
 }
