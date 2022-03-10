@@ -111,10 +111,11 @@ int game_start(game_t *game, const char *p1, const char *p2)
 
 	arm_timer(game->config->timeout);
 	popen2(p1, &game->players[0]);
-	fprintf(game->players[0].out, "init %d %d %d 0\n",
+	fprintf(game->players[0].out, "init %d %d %d %f 0\n",
 		game->config->color_count,
 		game->cell_count / game->config->color_count,
-		game->config->grid_size);
+		game->config->grid_size,
+		game->config->timeout);
 	if (fscanf(game->players[0].in, "%7s", action) != 1)
 		return 1;
 	if (strcmp(action, "color") != 0)
@@ -133,10 +134,11 @@ int game_start(game_t *game, const char *p1, const char *p2)
 	
 	arm_timer(game->config->timeout);
 	popen2(p2, &game->players[1]);
-	fprintf(game->players[1].out, "init %d %d %d 1\n",
+	fprintf(game->players[1].out, "init %d %d %d %f 1\n",
 		game->config->color_count,
 		game->cell_count / game->config->color_count,
-		game->config->grid_size);
+		game->config->grid_size,
+		game->config->timeout);
 	if (fscanf(game->players[1].in, "%7s", action) != 1)
 		return 0;
 	if (strcmp(action, "color") != 0)
