@@ -298,8 +298,6 @@ static int game_turn_internal(game_t *game)
 	int winner = game_winner(game);
 	if (winner != -1) {
 		winner = winner * 2 / game->config->color_count;
-		if (game->config->debug)
-			fprintf(stderr, "Player %d wins\n", winner + 1);
 		return winner;
 	}
 	return -1;
