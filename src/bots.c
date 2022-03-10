@@ -118,17 +118,17 @@ int game_start(game_t *game, const char *p1, const char *p2)
 		game->config->timeout);
 	if (fscanf(game->players[0].in, "%7s", action) != 1) {
 		if (game->config->debug)
-			fprintf(stderr, "player 1 timed out\n");
+			fprintf(stderr, "Player 1 timed out sending color command\n");
 		return 1;
 	}
 	if (strcmp(action, "color") != 0) {
 		if (game->config->debug)
-			fprintf(stderr, "player 1 send a wrong command: \"%s\" expected \"color\"\n", action);
+			fprintf(stderr, "Player 1 send a wrong command: \"%s\" expected \"color\"\n", action);
 		return 1;
 	}
 	if (fscanf(game->players[0].in, "%d", &c1) != 1) {
 		if (game->config->debug)
-			fprintf(stderr, "player 1 timed out\n");
+			fprintf(stderr, "Player 1 timed out giving color value\n");
 		return 1;
 	}
 	switch (c1) {
@@ -150,17 +150,17 @@ int game_start(game_t *game, const char *p1, const char *p2)
 		game->config->timeout);
 	if (fscanf(game->players[1].in, "%7s", action) != 1) {
 		if (game->config->debug)
-			fprintf(stderr, "player 2 timed out\n");
+			fprintf(stderr, "Player 2 timed out sending color command\n");
 		return 0;
 	}
 	if (strcmp(action, "color") != 0) {
 		if (game->config->debug)
-			fprintf(stderr, "player 2 send a wrong command: \"%s\" expected \"color\"\n", action);
+			fprintf(stderr, "Player 2 send a wrong command: \"%s\" expected \"color\"\n", action);
 		return 0;
 	}
 	if (fscanf(game->players[1].in, "%d", &c2) != 1) {
 		if (game->config->debug)
-			fprintf(stderr, "player 2 timed out\n");
+			fprintf(stderr, "Player 2 timed out giving color value\n");
 		return 0;
 	}
 	switch (c2) {
@@ -204,37 +204,52 @@ int game_turn(game_t *game)
 	char action[8];
 
 	arm_timer(game->config->timeout);
-	if (game->chip_a == -1 || game->chip_b == -1)
+	if (game->chip_a == -1 || game->chip_b == -1) {
+		if (game->config->debug)
+			fprintf(stderr, "Player %d out of chips: chip 1: %d, chip 2: %d\n", game->turn + 1, game->chip_a, game->chip_b);
 		return !game->turn;
-	fprintf(game->players[game->turn].out, "chips %d %d\n", game->chip_a, game->chip_b);
+	}
+	fprintf(game->players[game->turn].out, "chips %d %d\n", game->chip_a + 1, game->chip_b + 1);
 
 	// Get action from player
-	if (fscanf(game->players[game->turn].in, "%7s", action) != 1)
+	if (fscanf(game->players[game->turn].in, "%7s", action) != 1) {
+		if (game->config->debug)
+			fprintf(stderr, "Player %d timed out giving action\n", game->turn + 1);
 		return !game->turn;
+	}
 	
 	if (strcmp(action, "rotate") == 0) {
 		// Get and validate parameters
 		if (fscanf(game->players[game->turn].in, "%d", &value) != 1) {
 			if (game->config->debug)
-				fprintf(stderr, "player 2 timed out\n");
+				fprintf(stderr, "Player %d timed out giving rotate value\n", game->turn + 1);
 			return !game->turn;
 		}
-		if (value < 0 || value >= 6)
+		if (value < 0 || value >= 6) {
+			if (game->config->debug)
+				fprintf(stderr, "Player %d rotate error: %d\n", game->turn + 1, value);
 			return !game->turn;
+		}
 
 		// Perform rotation
 		fprintf(game->players[!game->turn].out, "rotate %d\n", value);
 		game_rotate(game, value);
 	} else if (strcmp(action, "drop") == 0) {
 		// Get and validate parameters
-		if (fscanf(game->players[game->turn].in, "%d %d", &pos, &value) != 2)
+		if (fscanf(game->players[game->turn].in, "%d %d", &pos, &value) != 2) {
+			if (game->config->debug)
+				fprintf(stderr, "Player %d timed out giving drop value\n", game->turn + 1);
 			return !game->turn;
+		}
 		compute_pos(pos, game->config->grid_size, game->gravity, &q, &r, &s);
 		cell_t *cell = game_get(game, q, r, s);
 		if (cell == NULL || cell->chip.value != -1
 			|| value < game->turn * game->config->color_count / 2
-			|| value >= (game->turn + 1) * game->config->color_count / 2)
+			|| value >= (game->turn + 1) * game->config->color_count / 2) {
+			if (game->config->debug)
+				fprintf(stderr, "Player %d tried to place a cell in a wrong location\n", game->turn + 1);
 			return !game->turn;
+		}
 
 		// Perform drop
 		if (value == game->chip_a)
@@ -245,6 +260,8 @@ int game_turn(game_t *game)
 		game_drop(game, q, r, s, value);
 	} else {
 		// Invalid action
+		if (game->config->debug)
+			fprintf(stderr, "Player %d invalid action: \"%s\" expected \"rotate\" or \"drop\"\n", game->turn + 1, action);
 		return !game->turn;
 	}
 	disarm_timer();
