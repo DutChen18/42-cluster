@@ -42,6 +42,7 @@ typedef struct cluster cluster_t;
 typedef struct config config_t;
 typedef struct visuals visuals_t;
 typedef struct gui gui_t;
+typedef struct bag_count bag_count_t;
 
 // Data that gets copied when a chip moves to another cell.
 struct chip {
@@ -117,6 +118,13 @@ struct game {
 	int			chip_a, chip_b;
 };
 
+struct bag_count {
+	mlx_image_t	*text;
+	int			background;
+	int			x;
+	int			y;
+};
+
 struct visuals {
 	mlx_t		*mlx;
 	int			cell_diagonal;
@@ -127,6 +135,7 @@ struct visuals {
 	gui_t		gui[4];
 	bool		skip_next;
 	mlx_image_t	*winner_str;
+	bag_count_t	bag_counts[2];
 };
 
 // All data is stored in this structure

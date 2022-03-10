@@ -142,6 +142,14 @@ void	one_gui_cell(gui_t *obj, int x, int y, hexagon_t *colors, hexagon_t *back_c
 	obj->layer = layer;
 }
 
+void	init_bag_count(visuals_t *visuals, hexagon_t *background, bag_count_t *bag, int x, int y)
+{
+	bag->background = mlx_image_to_window(visuals->mlx, background->img, x, y);
+	bag->text = NULL;
+	bag->x = x;
+	bag->y = y;
+}
+
 void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 {
 	int			x, y, mirror_x;
@@ -166,6 +174,13 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	mirror_x = config->window_width - x - width;
 	one_gui_cell(&visuals->gui[0], x, y, colors, &back_cell, HEXAGON_EVEN);
 	one_gui_cell(&visuals->gui[3], mirror_x, y, colors, &back_cell, HEXAGON_ODD);
+	
+	x -= width / 4 * 3 - border_size / 4;
+	y -= height / 2 - border_size / 4;
+	mirror_x = config->window_width - x - width;
+	init_bag_count(visuals, &back_cell, &visuals->bag_counts[0], x, y);
+	init_bag_count(visuals, &back_cell, &visuals->bag_counts[1], mirror_x, y);
+
 	place_gui_cells(visuals, config->color_count);
 }
 
@@ -239,6 +254,18 @@ static void	frame(void *param)
 		data->moving = move_hexagons(&data->visuals, &data->game);
 		if (!data->moving && data->winner == -1)
 		{
+			for (int i = 0; i < 2; i++)
+			{
+				bag_count_t *bag = &data->visuals.bag_counts[i];
+				if (bag->text != NULL)
+					mlx_delete_image(data->visuals.mlx, bag->text);
+				char buf[256];
+				int total = 0;
+				for (int j = 0; j < data->game.config->color_count / 2; j++)
+					total += data->game.chip_counts[j + i * data->game.config->color_count / 2];
+				sprintf(buf, "%04d", total);
+				bag->text = mlx_put_string(data->visuals.mlx, buf, bag->x + 24, bag->y + 28);
+			}
 			game_preturn(&data->game);
 			if (data->game.chip_a >= 0 && data->game.chip_b >= 0)
 				move_gui_cells(data->visuals.gui, data->game.config->color_count, data->game.chip_a, data->game.chip_b);
