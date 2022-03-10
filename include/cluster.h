@@ -10,9 +10,6 @@
 //Some basic definitons to be used by the game (have to make a config later).
 #define WINDOW_WIDTH 5120
 #define WINDOW_HEIGHT 2880
-#define GRID_BORDER_SIZE 6 //best a even number
-#define SIZE 55 //max is 55 if we fix 1 image for the grid, otherwise devide by 1.7
-#define WIN_LENGTH 5
 
 // Numpad values (unused).
 # define NUMPAD_7_KEY 89
@@ -22,6 +19,15 @@
 # define NUMPAD_5_KEY 87
 # define NUMPAD_6_KEY 88
 
+//instance levels
+# define DISMISS -1
+# define BACKROUND 0
+# define GRADIENTS 1
+# define GRID_EVEN 20
+# define GRID_ODD 30
+# define HEXAGON_EVEN 40
+# define HEXAGON_ODD 50
+
 // Key values (also unused).
 # define UP_ARROW_KEY 126
 # define DOWN_ARROW_KEY 125
@@ -30,23 +36,33 @@
 # define ESC_KEY 53
 
 // Setting all structures names from "*" to "*_t".
+typedef struct chip chip_t;
 typedef struct cell cell_t;
 typedef struct game game_t;
 typedef struct grid grid_t;
 typedef struct hexagon hexagon_t;
 typedef struct player player_t;
 typedef struct cluster cluster_t;
+typedef struct config config_t;
+typedef struct visuals visuals_t;
+typedef struct gui gui_t;
 
-// The structure used for making game logic cells. Cells are used to place and connect the logic of the grid. Quatation needed.
+// Data that gets copied when a chip moves to another cell.
+struct chip {
+	int		value;
+	float	x, y;
+	int		tile_index;
+	bool	placed;
+};
+
+// The structure used for making game logic cells.
+// Cells are used to place and connect the logic of the grid.
 struct cell {
-	cell_t		*neighbors[6];
-	int			value;
-	int			q, r, s;
-	float		x, y;
-	float		old_x, old_y;
-	int			tile_instance;
-	mlx_image_t	*image;
-	bool		placed;
+	cell_t	*neighbors[6];
+	chip_t	chip;
+	bool	wall;
+	int		q, r, s;
+	float	x, y;
 };
 
 // Used to store Hexagon properties
@@ -65,22 +81,12 @@ struct grid {
 	hexagon_t	one_cell;
 };
 
-// All game logic is stored in here
-struct game {
-	int			cell_count;
-	int			rings;
-	int			cell_diagonal;
-	int			cell_height;
-	int			color_count;
-	int			grid_size;
-	cell_t		*cells;
-	int			*colors;
-	hexagon_t	*hexa_tiles;
-	hexagon_t	wall;
-	int			*chip_counts;
-	int			gravity;
-	mlx_image_t *bg_gradients[6];
-	int			turn;
+struct config {
+	int		use_mlx;
+	int		grid_size;
+	int		color_count;
+	float	bot_speed;
+	int		win_length;
 };
 
 // Structure used for bot implementation
@@ -90,19 +96,49 @@ struct player {
 	FILE	*out;
 };
 
+struct gui {
+	int			x;
+	int			y;
+	int			layer;
+	hexagon_t	*back_cell;
+	hexagon_t	*colors;
+};
+
+// All game logic is stored in here
+struct game {
+	config_t	*config;
+	player_t	players[2];
+	int			cell_count;
+	cell_t		*cells;
+	int			*colors;
+	int			*chip_counts;
+	int			gravity;
+	int			turn;
+};
+
+struct visuals {
+	mlx_t		*mlx;
+	int			cell_diagonal;
+	int			cell_height;
+	hexagon_t	*hexa_tiles;
+	mlx_image_t	*bg_gradients[6];
+	grid_t		grid;
+	gui_t		gui[4];
+};
+
 // All data is stored in this structure
-struct cluster
-{
-	mlx_t			*mlx;
+struct cluster {
 	game_t			game;
-	grid_t			grid;
+	visuals_t		visuals;
 	mlx_key_data_t	move;
 	bool			moving;
 	double			time;
-	player_t		players[2];
 	int				winner;
 };
 
+int		get_border_size(int height);
+void	hexagon_border_init(visuals_t *visuals, hexagon_t *obj, int width, int height, int color);
+void	place_border(visuals_t *visuals, cell_t *cell, hexagon_t *texture);
 void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color);
 
 // color functions
@@ -116,14 +152,19 @@ int	get_width_from_height(int height);
 int	get_height_from_width(int width);
 
 // Game logic functions
+void game_init(game_t *game, config_t *config);
 cell_t *game_get(game_t *game, int q, int r, int s);
-void game_init(mlx_t *mlx, game_t *game, int size, int color_count);
 cell_t *game_update(game_t *game, cell_t *cell);
 void game_rotate(game_t *game, int gravity);
 void game_drop(game_t *game, int q, int r, int s, int value);
 int game_winner(game_t *game);
-void game_start(game_t *game, player_t *players);
-int game_turn(game_t *game, player_t *players);
-void popen2(const char *path, player_t *player);
+void game_start(game_t *game, const char *p1, const char *p2);
+int game_turn(game_t *game);
+
+void grid_init(visuals_t *visuals, game_t *game);
+void set_bg_gradients(mlx_t* mlx, mlx_image_t **bg_gradients);
+void visuals_init(visuals_t *visuals, mlx_t *mlx, game_t *game);
+
+void config_read(config_t *config, const char *path);
 
 #endif // CLUSTER_H

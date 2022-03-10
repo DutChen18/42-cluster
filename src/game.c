@@ -1,108 +1,74 @@
 #include "cluster.h"
-#include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
-void popen2(const char* path, player_t* player)
+static void game_init_cells(game_t *game, config_t *config)
 {
-	int in[2], out[2];
-	pipe(in);
-	pipe(out);
-	player->pid = fork();
-	if (player->pid == 0)
-	{
-		close(in[STDOUT_FILENO]);
-		close(out[STDIN_FILENO]);
-		dup2(in[STDIN_FILENO], STDIN_FILENO);
-		dup2(out[STDOUT_FILENO], STDOUT_FILENO);
-		execl(path, "", NULL);
-	}
-	else
-	{
-		close(in[STDIN_FILENO]);
-		close(out[STDOUT_FILENO]);
-		player->in = fdopen(out[STDIN_FILENO], "r");
-		setbuf(player->in, NULL);
-		player->out = fdopen(in[STDOUT_FILENO], "w");
-		setbuf(player->out, NULL);
+	int	i = 0;
+
+	for (int q = -config->grid_size + 1; q < config->grid_size; q += 1) {
+		for (int r = -config->grid_size + 1; r < config->grid_size; r += 1) {
+			for (int s = -config->grid_size + 1; s < config->grid_size; s += 1) {
+				if (q + r + s == 0) {
+					cell_t *cell = &game->cells[i];
+					cell->q = q;
+					cell->r = r;
+					cell->s = s;
+					cell->wall = false;
+					coord_convert(&cell->x, &cell->y, q, r, s);
+					cell->chip.value = -1;
+					cell->chip.tile_index = -1;
+					cell->chip.placed = false;
+					cell->chip.x = cell->x;
+					cell->chip.y = cell->y;
+					i += 1;
+				}
+			}
+		}
 	}
 }
 
-void game_start(game_t *game, player_t *players)
+static void game_init_neighbors(game_t *game)
 {
-	fprintf(players[0].out, "init %d %d %d 0\n", game->color_count, game->cell_count / game->color_count, game->grid_size);
-	fprintf(players[1].out, "init %d %d %d 1\n", game->color_count, game->cell_count / game->color_count, game->grid_size);
+	for (int i = 0; i < game->cell_count; i += 1) {
+		cell_t *cell = &game->cells[i];
+		cell->neighbors[0] = game_get(game, cell->q, cell->r - 1, cell->s + 1);
+		cell->neighbors[1] = game_get(game, cell->q + 1, cell->r - 1, cell->s);
+		cell->neighbors[2] = game_get(game, cell->q + 1, cell->r, cell->s - 1);
+		cell->neighbors[3] = game_get(game, cell->q, cell->r + 1, cell->s - 1);
+		cell->neighbors[4] = game_get(game, cell->q - 1, cell->r + 1, cell->s);
+		cell->neighbors[5] = game_get(game, cell->q - 1, cell->r, cell->s + 1);
+	}
 }
 
-int game_take_random(game_t *game)
+cell_t *game_get(game_t *game, int q, int r, int s)
 {
-	int total = 0;
-	int value = game->turn * game->color_count / 2;
-	for (int i = 0; i < game->color_count / 2; i += 1) {
-		total += game->chip_counts[i + value];
+	cell_t *cell;
+
+	for (int i = 0; i < game->cell_count; i += 1) {
+		cell = &game->cells[i];
+		if (cell->q == q && cell->r == r && cell->s == s)
+			return cell;
 	}
-	if (total == 0)
-		return -1;
-	int index = rand() % total;
-	while (index >= game->chip_counts[value]) {
-		index -= game->chip_counts[value];
-		value += 1;
-	}
-	return value;
+	return NULL;
 }
 
-int game_turn(game_t *game, player_t *players)
+void game_init(game_t *game, config_t *config)
 {
-	int a, b;
-	int q, r, s, value;
-	char action[256];
-	a = game_take_random(game);
-	b = game_take_random(game);
-	if (a == -1 || b == -1)
-		return !game->turn;
-	fprintf(players[game->turn].out, "chips %d %d\n", a, b);
-	fscanf(players[game->turn].in, "%255s", action);
-	if (strcmp(action, "rotate") == 0) {
-		fscanf(players[game->turn].in, "%d", &value);
-		fprintf(stderr, "rotate %d\n", value);
-		if (value < 0 || value >= 6)
-			return !game->turn;
-		fprintf(players[!game->turn].out, "rotate %d\n", value);
-		game_rotate(game, value);
-	} else if (strcmp(action, "drop") == 0) {
-		fscanf(players[game->turn].in, "%d %d %d %d", &q, &r, &s, &value);
-		fprintf(stderr, "drop %d %d %d %d\n", q, r, s, value);
-		cell_t *cell = game_get(game, q, r, s);
-		if (cell == NULL || cell->value != -1)
-			return !game->turn;
-		if (value < game->turn * game->color_count / 2)
-			return !game->turn;
-		if (value >= (game->turn + 1) * game->color_count / 2)
-			return !game->turn;
-		game->chip_counts[value] -= 1;
-		fprintf(players[!game->turn].out, "drop %d %d %d %d\n", q, r, s, value);
-		game_drop(game, q, r, s, value);
-	} else
-		return !game->turn;
-	int winner = game_winner(game);
-	if (winner != -1)
-		return winner * 2 / game->color_count;
-	return -1;
-}
-
-void game_loop(const char *path1, const char *path2)
-{
-	game_t game;
-	player_t players[2];
-	int winner = -1;
-
-	game_init(NULL, &game, 4, 1);
-	popen2(path1, &players[0]);
-	popen2(path2, &players[1]);
-	game_start(&game, players);
-
-	while (winner != -1) {
-		winner = game_turn(&game, players);
-		game.turn = !game.turn;
+	game->config = config;
+	game->cell_count = (config->grid_size * config->grid_size - config->grid_size) * 3 + 1;
+	game->gravity = 3;
+	game->cells = malloc(sizeof(*game->cells) * game->cell_count);
+	game->colors = malloc(sizeof(*game->colors) * config->color_count);
+	game->chip_counts = malloc(sizeof(*game->chip_counts) * config->color_count);
+	game->turn = 0;
+	for (int i = 0; i < config->color_count; i += 1) {
+		game->colors[i] = 0xFF;
+		game->colors[i] |= 0xFFFF * ((i + 1) >> 0 & 1);
+		game->colors[i] |= 0xFF00FF * ((i + 1) >> 1 & 1);
+		game->colors[i] |= 0xFF0000FF * ((i + 1) >> 2 & 1);
+		game->chip_counts[i] = game->cell_count / config->color_count;
 	}
+	game_init_cells(game, config);
+	game_init_neighbors(game);
 }
