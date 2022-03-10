@@ -59,7 +59,7 @@ static bool mlx_insert_xpm_entry(xpm_t* xpm, char* line, uint32_t* ctable, size_
 
 	int32_t index = mlx_fnv_hash(line, xpm->cpp) % s;
 	uint32_t color = (uint32_t)strtol(line + xpm->cpp + 2, NULL, 16);
-	ctable[index] = xpm->mode == 'm' ? mlx_rgba_to_mono(color) : color;
+	ctable[index] = xpm->mode == 'm' ? (uint32_t) mlx_rgba_to_mono(color) : color;
 	return (true);
 }
 
