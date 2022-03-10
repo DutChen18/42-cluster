@@ -38,6 +38,7 @@ bot: $(botfile)
 	$(CC) $(botfile) -o $@
 
 re: clean
+	make re -C mlx
 	make all
 
 -include $(dep)

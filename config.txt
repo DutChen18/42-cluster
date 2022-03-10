@@ -2,7 +2,7 @@
 use_mlx 1
 
 # bot speed, lower = faster
-bot_speed 0.001
+bot_speed 0.05
 
 # side length of the game grid
 grid_size 5
@@ -22,3 +22,6 @@ window_height 1000
 
 # debug mode
 debug 1
+
+# allow rotation using numpad
+accept_input 1

@@ -7,14 +7,6 @@
 #include <stdio.h>
 #include "MLX42/MLX42.h"
 
-// Numpad values (unused).
-# define NUMPAD_7_KEY 89
-# define NUMPAD_8_KEY 91
-# define NUMPAD_9_KEY 92
-# define NUMPAD_4_KEY 86
-# define NUMPAD_5_KEY 87
-# define NUMPAD_6_KEY 88
-
 //instance levels
 # define DISMISS -1
 # define BACKROUND 0
@@ -23,13 +15,6 @@
 # define GRID_ODD 30
 # define HEXAGON_EVEN 40
 # define HEXAGON_ODD 50
-
-// Key values (also unused).
-# define UP_ARROW_KEY 126
-# define DOWN_ARROW_KEY 125
-# define LEFT_ARROW_KEY 123
-# define RIGHT_ARROW_KEY 124
-# define ESC_KEY 53
 
 // Setting all structures names from "*" to "*_t".
 typedef struct chip chip_t;
@@ -88,6 +73,7 @@ struct config {
 	int		window_width;
 	int		window_height;
 	int		debug;
+	int		accept_input;
 };
 
 // Structure used for bot implementation

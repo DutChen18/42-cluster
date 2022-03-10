@@ -6,11 +6,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-int create_color(int r, int g, int b, int t)
-{
-	return (r << 24 | g << 16 | b << 8 | t);
-}
-
 int get_height_from_width(int width)
 {
 	return (int) (width / 2) * sqrt(3);
@@ -211,20 +206,20 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 	data = (cluster_t*)param;
 	if (keydata.key == MLX_KEY_ESCAPE)
 		exit(0);
-	if (data->moving == false)
+	if (data->moving == false && data->game.config->accept_input)
 	{
 		data->moving = true;
-		if (keydata.key == MLX_KEY_KP_8 && keydata.action == 1)
+		if (keydata.key == MLX_KEY_W && keydata.action == 1)
 			game_rotate(&data->game, 0);
-		else if (keydata.key == MLX_KEY_KP_5 && keydata.action == 1)
+		else if (keydata.key == MLX_KEY_S && keydata.action == 1)
 			game_rotate(&data->game, 3);
-		else if (keydata.key == MLX_KEY_KP_9 && keydata.action == 1)
+		else if (keydata.key == MLX_KEY_E && keydata.action == 1)
 			game_rotate(&data->game, 1);
-		else if (keydata.key == MLX_KEY_KP_6 && keydata.action == 1)
+		else if (keydata.key == MLX_KEY_D && keydata.action == 1)
 			game_rotate(&data->game, 2);
-		else if (keydata.key == MLX_KEY_KP_4 && keydata.action == 1)
+		else if (keydata.key == MLX_KEY_A && keydata.action == 1)
 			game_rotate(&data->game, 4);
-		else if (keydata.key == MLX_KEY_KP_7 && keydata.action == 1)
+		else if (keydata.key == MLX_KEY_Q && keydata.action == 1)
 			game_rotate(&data->game, 5);
 		data->time = 0;
 	}
