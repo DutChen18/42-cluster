@@ -7,11 +7,11 @@ bot_speed 0.1
 # side length of the game grid
 grid_size 6
 
-# number of colors per player
-color_count 2
+# number of colors per player, will be set to grid_size if color_count > grid_size
+color_count 6
 
 # colors in a row required to win
-win_length 7
+win_length 5
 
 # time bots have to respond in seconds
 timeout 1.0
@@ -19,3 +19,6 @@ timeout 1.0
 # window size
 window_width 1000
 window_height 1080
+
+# debug mode
+debug 1

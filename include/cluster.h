@@ -86,6 +86,7 @@ struct config {
 	float	timeout;
 	int		window_width;
 	int		window_height;
+	int		debug;
 };
 
 // Structure used for bot implementation

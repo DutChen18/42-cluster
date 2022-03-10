@@ -226,13 +226,6 @@ static void	frame(void *param)
 	{
 		data->needs_move = false;
 		data->visuals.skip_next = true;
-		char *sep = "";
-		for (int i = 0; i < data->game.config->color_count; i++)
-		{
-			printf("%s%d", sep, data->game.chip_counts[i]);
-			sep = " ";
-		}
-		printf("\n");
 		data->winner = game_turn(&data->game);
 		move_hexagons(&data->visuals, &data->game);
 		data->time = 0;
@@ -279,6 +272,13 @@ int main(int argc, char **argv)
 		// place_wall(&data.game, 2, 1, -3);
 		// place_wall(&data.game, 2, 2, -4);
 		// place_wall(&data.game, 3, -3, 0);
+		// place_wall(&data.game, 0, 0, 0);
+		// place_wall(&data.game, 1, -1, 0);
+		// place_wall(&data.game, 0, -1, 1);
+		// place_wall(&data.game, -1, 0, 1);
+		// place_wall(&data.game, -1, 1, 0);
+		// place_wall(&data.game, 0, 1, -1);
+		// place_wall(&data.game, 1, 0, -1);
 		make_first_frame(&data.visuals, &data.game, &config);
 		mlx_key_hook(mlx, process_movement, &data);
 		mlx_loop_hook(mlx, frame, &data);
@@ -288,7 +288,6 @@ int main(int argc, char **argv)
 			game_preturn(&data.game);
 			data.winner = game_turn(&data.game);
 		}
-		printf("player %d wins!\n", data.winner + 1);
 	}
 	return EXIT_SUCCESS;
 }

@@ -18,7 +18,7 @@ static void popen2(const char* path, player_t* player)
 		close(out[STDIN_FILENO]);
 		dup2(in[STDIN_FILENO], STDIN_FILENO);
 		dup2(out[STDOUT_FILENO], STDOUT_FILENO);
-		execl(path, "", NULL);
+		execl("/bin/sh", "/bin/sh", "-c", path, NULL);
 		exit(EXIT_FAILURE);
 	}
 	else
@@ -105,43 +105,102 @@ static void disarm_timer(void)
 
 int game_start(game_t *game, const char *p1, const char *p2)
 {
-	unsigned c1, c2;
+	int c1, c2;
+	unsigned col1, col2;
 	char action[8];
 
 	arm_timer(game->config->timeout);
 	popen2(p1, &game->players[0]);
-	fprintf(game->players[0].out, "init %d %d %d 0\n",
+	fprintf(game->players[0].out, "init %d %d %d %f 0\n",
 		game->config->color_count,
 		game->cell_count / game->config->color_count,
-		game->config->grid_size);
-	if (fscanf(game->players[0].in, "%7s", action) != 1)
+		game->config->grid_size,
+		game->config->timeout);
+	if (fscanf(game->players[0].in, "%7s", action) != 1) {
+		disarm_timer();
+		if (game->config->debug)
+			fprintf(stderr, "Player 1 did not send color command\n");
 		return 1;
-	if (strcmp(action, "color") != 0)
+	}
+	if (strcmp(action, "color") != 0) {
+		disarm_timer();
+		if (game->config->debug)
+			fprintf(stderr, "Player 1 sent a wrong command: \"%s\" expected \"color\"\n", action);
 		return 1;
-	if (fscanf(game->players[0].in, "%u", &c1) != 1)
+	}
+	if (fscanf(game->players[0].in, "%d", &c1) != 1) {
+		disarm_timer();
+		if (game->config->debug)
+			fprintf(stderr, "Player 1 did not send color value\n");
 		return 1;
+	}
+	switch (c1) {
+	case 0: col1 = 0xFF0000; break;
+	case 1: col1 = 0xFFFF00; break;
+	case 3: col1 = 0x00FFFF; break;
+	case 4: col1 = 0x0000FF; break;
+	case 5: col1 = 0xFF00FF; break;
+	default:
+		disarm_timer();
+		if (game->config->debug)
+			fprintf(stderr, "Player 1 sent invalid color value\n");
+		return 1;
+	}
 	disarm_timer();
 	
 	arm_timer(game->config->timeout);
 	popen2(p2, &game->players[1]);
-	fprintf(game->players[1].out, "init %d %d %d 1\n",
+	fprintf(game->players[1].out, "init %d %d %d %f 1\n",
 		game->config->color_count,
 		game->cell_count / game->config->color_count,
-		game->config->grid_size);
-	if (fscanf(game->players[1].in, "%7s", action) != 1)
+		game->config->grid_size,
+		game->config->timeout);
+	if (fscanf(game->players[1].in, "%7s", action) != 1) {
+		disarm_timer();
+		if (game->config->debug)
+			fprintf(stderr, "Player 2 did not send color command\n");
 		return 0;
-	if (strcmp(action, "color") != 0)
+	}
+	if (strcmp(action, "color") != 0) {
+		disarm_timer();
+		if (game->config->debug)
+			fprintf(stderr, "Player 2 sent a wrong command: \"%s\" expected \"color\"\n", action);
 		return 0;
-	if (fscanf(game->players[1].in, "%u", &c2) != 1)
+	}
+	if (fscanf(game->players[1].in, "%d", &c2) != 1) {
+		disarm_timer();
+		if (game->config->debug)
+			fprintf(stderr, "Player 2 did not send color value\n");
 		return 0;
+	}
+	switch (c2) {
+	case 0: col2 = 0xFF0000; break;
+	case 1: col2 = 0xFFFF00; break;
+	case 3: col2 = 0x00FFFF; break;
+	case 4: col2 = 0x0000FF; break;
+	case 5: col2 = 0xFF00FF; break;
+	default:
+		disarm_timer();
+		if (game->config->debug)
+			fprintf(stderr, "Player 2 sent invalid color value\n");
+		return 0;
+	}
 	disarm_timer();
 
-	create_chip_colors(game, c1 << 8 | 0xFF, c2 << 8 | 0xFF);
+	if (col1 == 0xFF00FF && col2 == 0xFF00FF)
+		col2 = 0xFFFF00;
+	create_chip_colors(game, col1 << 8 | 0xFF, col2 << 8 | 0xFF);
 	return -1;
 }
 
 void game_preturn(game_t *game)
 {
+	if (game->config->debug) {
+		fprintf(stderr, "chips");
+		for (int i = 0; i < game->config->color_count; i++)
+			fprintf(stderr, " %d", game->chip_counts[i]);
+		fprintf(stderr, "\n");
+	}
 	game->chip_a = game_take_random(game);
 	game->chip_b = -1;
 	if (game->chip_a == -1)
@@ -159,34 +218,69 @@ int game_turn(game_t *game)
 	char action[8];
 
 	arm_timer(game->config->timeout);
-	if (game->chip_a == -1 || game->chip_b == -1)
+	if (game->chip_a == -1 || game->chip_b == -1) {
+		disarm_timer();
+		if (game->config->debug)
+			fprintf(stderr, "Player %d out of chips: chip 1: %d, chip 2: %d\n", game->turn + 1, game->chip_a, game->chip_b);
 		return !game->turn;
+	}
 	fprintf(game->players[game->turn].out, "chips %d %d\n", game->chip_a, game->chip_b);
 
 	// Get action from player
-	if (fscanf(game->players[game->turn].in, "%7s", action) != 1)
+	if (fscanf(game->players[game->turn].in, "%7s", action) != 1) {
+		disarm_timer();
+		if (game->config->debug)
+			fprintf(stderr, "Player %d did not give action\n", game->turn + 1);
 		return !game->turn;
+	}
 	
 	if (strcmp(action, "rotate") == 0) {
 		// Get and validate parameters
-		if (fscanf(game->players[game->turn].in, "%d", &value) != 1)
+		if (fscanf(game->players[game->turn].in, "%d", &value) != 1) {
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player %d did not give rotate value\n", game->turn + 1);
 			return !game->turn;
-		if (value < 0 || value >= 6)
+		}
+		if (value < 0 || value >= 6) {
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player %d sent invalid rotation value: %d\n", game->turn + 1, value);
 			return !game->turn;
+		}
 
 		// Perform rotation
 		fprintf(game->players[!game->turn].out, "rotate %d\n", value);
 		game_rotate(game, value);
 	} else if (strcmp(action, "drop") == 0) {
 		// Get and validate parameters
-		if (fscanf(game->players[game->turn].in, "%d %d", &pos, &value) != 2)
+		if (fscanf(game->players[game->turn].in, "%d %d", &pos, &value) != 2) {
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player %d did not give drop value\n", game->turn + 1);
 			return !game->turn;
+		}
 		compute_pos(pos, game->config->grid_size, game->gravity, &q, &r, &s);
 		cell_t *cell = game_get(game, q, r, s);
-		if (cell == NULL || cell->chip.value != -1
-			|| value < game->turn * game->config->color_count / 2
-			|| value >= (game->turn + 1) * game->config->color_count / 2)
+		if (cell == NULL) {
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player %d tried to place a chip at an invalid location: %d\n", game->turn + 1, pos);
 			return !game->turn;
+		}
+		if (cell->chip.value != -1) {
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player %d tried to place a chip on top of another chip\n", game->turn + 1);
+			return !game->turn;
+		}
+		if (value < game->turn * game->config->color_count / 2
+			|| value >= (game->turn + 1) * game->config->color_count / 2) {
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player %d tried to place an invalid chip: %d\n", game->turn + 1, value);
+			return !game->turn;
+		}
 
 		// Perform drop
 		if (value == game->chip_a)
@@ -197,6 +291,9 @@ int game_turn(game_t *game)
 		game_drop(game, q, r, s, value);
 	} else {
 		// Invalid action
+		disarm_timer();
+		if (game->config->debug)
+			fprintf(stderr, "Player %d invalid action: \"%s\" expected \"rotate\" or \"drop\"\n", game->turn + 1, action);
 		return !game->turn;
 	}
 	disarm_timer();
@@ -204,7 +301,10 @@ int game_turn(game_t *game)
 	// Invert turn and check winner
 	game->turn = !game->turn;
 	int winner = game_winner(game);
-	if (winner != -1)
-		return winner * 2 / game->config->color_count;
+	if (winner != -1) {
+		winner = winner * 2 / game->config->color_count;
+		printf("Player %d wins!\n", winner + 1);
+		return winner;
+	}
 	return -1;
 }

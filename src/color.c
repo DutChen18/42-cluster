@@ -72,7 +72,7 @@ unsigned	close_color_check(unsigned base_colors_p1, unsigned base_colors_p2)
 	float	r, g, b;
 	float	r1, g1, b1;
 	float	r2, g2, b2;
-	float 	threshold = 1.4;
+	float 	threshold = 0.5;
 	
 	split_rgb(base_colors_p1, &r1, &g1, &b1);
 	split_rgb(base_colors_p2, &r2, &g2, &b2);
@@ -104,10 +104,10 @@ void create_chip_colors(game_t *game, unsigned base_color_p1, unsigned base_colo
 
 	if (close_color_check(base_color_p1, base_color_p2))
 		base_color_p2 = get_inverted_color(base_color_p2);
-	h_increase = 1.0 / (game->config->color_count * 2);
+	h_increase = 1.0 / 6.0 / (game->config->color_count / 2.0);
 	split_rgb(base_color_p1, &r, &g, &b);
 	rgb_to_hsv(&r, &g, &b, &h, &s, &v);
-	h = fmod(h - h_increase * game->config->color_count / 4 + 1.0, 1.0);
+	h = fmod(h - h_increase * game->config->color_count / 4.0 + 1.0, 1.0);
 	for (int i = 0; i < game->config->color_count; i += 1) {
 		hsv_to_rgb(&h, &s, &v, &r, &g, &b);
 		if (i == game->config->color_count / 2)
