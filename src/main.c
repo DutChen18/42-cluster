@@ -249,6 +249,14 @@ static void	frame(void *param)
 	for (int i = 0; i < 6; i++)
 		data->visuals.bg_gradients[i]->enabled = false;
 	data->visuals.bg_gradients[data->game.gravity]->enabled = true;
+
+	if (data->visuals.winner_str != NULL)
+		mlx_delete_image(data->visuals.mlx, data->visuals.winner_str);
+	data->visuals.winner_str = NULL;
+	if (data->winner == 0)
+		data->visuals.winner_str = mlx_put_string(data->visuals.mlx, "Player 1 wins!", 0, 0);
+	if (data->winner == 1)
+		data->visuals.winner_str = mlx_put_string(data->visuals.mlx, "Player 2 wins!", 0, 0);
 }
 
 int main(int argc, char **argv)

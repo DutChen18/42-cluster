@@ -126,6 +126,7 @@ struct visuals {
 	grid_t		grid;
 	gui_t		gui[4];
 	bool		skip_next;
+	mlx_image_t	*winner_str;
 };
 
 // All data is stored in this structure
