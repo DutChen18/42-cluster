@@ -1,5 +1,10 @@
 # 42-cluster
 
+# usage
+
+	make
+	./cluster [bot 1] [bot 2]
+
 # commands
 
 	init %d %d %d %f %d
@@ -34,10 +39,10 @@
 		%d = position to drop at [4]
 		%d = chip to drop
 
-[1] this is 2 times the number of colors per player, so 4 in a standard game.
-[2] except for the first turn of bot 0, bots will receive their opponent's action before drawing chips.
-[3] this is the initial direction
-[4] 0 is centered around the current direction of gravity, positive values are in the clockwise direction.
+[1] this is 2 times the number of colors per player, so 4 in a standard game.  
+[2] except for the first turn of bot 0, bots will receive their opponent's action before drawing chips.  
+[3] this is the initial direction.  
+[4] 0 is centered around the current direction of gravity, positive values are in the clockwise direction.  
 
 # example
 
