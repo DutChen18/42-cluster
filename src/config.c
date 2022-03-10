@@ -21,6 +21,10 @@ void config_read(config_t *config, const char *path)
 			fscanf(file, "%d", &config->win_length);
 		} else if (strcmp(key, "timeout") == 0) {
 			fscanf(file, "%f", &config->timeout);
+		} else if (strcmp(key, "window_width") == 0) {
+			fscanf(file, "%d", &config->window_width);
+		} else if (strcmp(key, "window_height") == 0) {
+			fscanf(file, "%d", &config->window_height);
 		} else if (strcmp(key, "#") == 0) {
 			while (1) {
 				int c = fgetc(file);

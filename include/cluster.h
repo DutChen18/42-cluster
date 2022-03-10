@@ -7,11 +7,6 @@
 #include <stdio.h>
 #include "MLX42/MLX42.h"
 
-//Some basic definitons to be used by the game (have to make a config later).
-#define WINDOW_WIDTH 1080
-#define WINDOW_HEIGHT 1080
-#define GRID_BORDER_SIZE 6 //best a even number
-
 // Numpad values (unused).
 # define NUMPAD_7_KEY 89
 # define NUMPAD_8_KEY 91
@@ -78,6 +73,8 @@ struct config {
 	float	bot_speed;
 	int		win_length;
 	float	timeout;
+	int		window_width;
+	int		window_height;
 };
 
 // Structure used for bot implementation
