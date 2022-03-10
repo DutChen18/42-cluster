@@ -195,12 +195,6 @@ int game_start(game_t *game, const char *p1, const char *p2)
 
 void game_preturn(game_t *game)
 {
-	if (game->config->debug) {
-		fprintf(stderr, "chips");
-		for (int i = 0; i < game->config->color_count; i++)
-			fprintf(stderr, " %d", game->chip_counts[i]);
-		fprintf(stderr, "\n");
-	}
 	game->chip_a = game_take_random(game);
 	game->chip_b = -1;
 	if (game->chip_a == -1)
