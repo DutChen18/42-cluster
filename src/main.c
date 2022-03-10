@@ -6,11 +6,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-int create_color(int r, int g, int b, int t)
-{
-	return (r << 24 | g << 16 | b << 8 | t);
-}
-
 int get_height_from_width(int width)
 {
 	return (int) (width / 2) * sqrt(3);
@@ -127,7 +122,7 @@ void	place_gui_cells(visuals_t *visuals, int color_count)
 			visuals->gui[i].back_cell->img->instances[index].z = GRID_ODD;
 		for (int j = 0; j < color_count; j++)
 		{
-			index = mlx_image_to_window(visuals->mlx, visuals->gui[i].colors[j].img, visuals->gui[i].x + visuals->gui[i].back_cell->width / 8, visuals->gui[i].y + visuals->gui[i].back_cell->height / 8);
+			index = mlx_image_to_window(visuals->mlx, visuals->gui[i].colors[j].img, visuals->gui[i].x + visuals->gui[i].back_cell->width /10, visuals->gui[i].y + visuals->gui[i].back_cell->height / 10);
 			visuals->gui[i].colors[j].img->instances[index].z = DISMISS;
 		}
 	}
@@ -140,6 +135,15 @@ void	one_gui_cell(gui_t *obj, int x, int y, hexagon_t *colors, hexagon_t *back_c
 	obj->colors = colors;
 	obj->back_cell = back_cell;
 	obj->layer = layer;
+}
+
+void	init_bag_count(visuals_t *visuals, hexagon_t *background, bag_count_t *bag, int x, int y)
+{
+	(void) background;
+	// bag->background = mlx_image_to_window(visuals->mlx, background->img, x, y);
+	bag->text = NULL;
+	bag->x = x;
+	bag->y = y + visuals->grid.height / 8;
 }
 
 void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
@@ -155,7 +159,7 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	for (int i = 0; i < config->color_count; i++)
 		hexagon_init(visuals->mlx, &colors[i], width, height, game->colors[i]);
 	
-	y = config->window_height / 2 + (int) (visuals->cell_height * (config->grid_size - 0.5) - 1.25 * height);
+	y = config->window_height / 2 + (int) ((visuals->cell_height - get_border_size(visuals->cell_height) / 2) * (config->grid_size - 0.5)) - height;
 	x = config->window_width / 2 - visuals->cell_diagonal * config->grid_size / 2;
 	mirror_x = config->window_width - x - width;
 	one_gui_cell(&visuals->gui[1], x, y, colors, &back_cell, HEXAGON_ODD);
@@ -166,6 +170,14 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	mirror_x = config->window_width - x - width;
 	one_gui_cell(&visuals->gui[0], x, y, colors, &back_cell, HEXAGON_EVEN);
 	one_gui_cell(&visuals->gui[3], mirror_x, y, colors, &back_cell, HEXAGON_ODD);
+	
+	x -= width / 4 * 3 - border_size / 4;
+	x += visuals->grid.height / 16;
+	y -= height / 2 - border_size / 4;
+	mirror_x = config->window_width - x - width;
+	init_bag_count(visuals, &back_cell, &visuals->bag_counts[0], x, y);
+	init_bag_count(visuals, &back_cell, &visuals->bag_counts[1], mirror_x, y);
+
 	place_gui_cells(visuals, config->color_count);
 }
 
@@ -194,20 +206,20 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 	data = (cluster_t*)param;
 	if (keydata.key == MLX_KEY_ESCAPE)
 		exit(0);
-	if (data->moving == false)
+	if (data->moving == false && data->game.config->accept_input)
 	{
 		data->moving = true;
-		if (keydata.key == MLX_KEY_KP_8 && keydata.action == 1)
+		if (keydata.key == MLX_KEY_W && keydata.action == 1)
 			game_rotate(&data->game, 0);
-		else if (keydata.key == MLX_KEY_KP_5 && keydata.action == 1)
+		else if (keydata.key == MLX_KEY_S && keydata.action == 1)
 			game_rotate(&data->game, 3);
-		else if (keydata.key == MLX_KEY_KP_9 && keydata.action == 1)
+		else if (keydata.key == MLX_KEY_E && keydata.action == 1)
 			game_rotate(&data->game, 1);
-		else if (keydata.key == MLX_KEY_KP_6 && keydata.action == 1)
+		else if (keydata.key == MLX_KEY_D && keydata.action == 1)
 			game_rotate(&data->game, 2);
-		else if (keydata.key == MLX_KEY_KP_4 && keydata.action == 1)
+		else if (keydata.key == MLX_KEY_A && keydata.action == 1)
 			game_rotate(&data->game, 4);
-		else if (keydata.key == MLX_KEY_KP_7 && keydata.action == 1)
+		else if (keydata.key == MLX_KEY_Q && keydata.action == 1)
 			game_rotate(&data->game, 5);
 		data->time = 0;
 	}
@@ -239,6 +251,18 @@ static void	frame(void *param)
 		data->moving = move_hexagons(&data->visuals, &data->game);
 		if (!data->moving && data->winner == -1)
 		{
+			for (int i = 0; i < 2; i++)
+			{
+				bag_count_t *bag = &data->visuals.bag_counts[i];
+				if (bag->text != NULL)
+					mlx_delete_image(data->visuals.mlx, bag->text);
+				char buf[256];
+				int total = 0;
+				for (int j = 0; j < data->game.config->color_count / 2; j++)
+					total += data->game.chip_counts[j + i * data->game.config->color_count / 2];
+				sprintf(buf, "%04d", total);
+				bag->text = mlx_put_string(data->visuals.mlx, buf, bag->x + data->visuals.grid.height / 28 - 14, bag->y + data->visuals.grid.height / 28 - 10);
+			}
 			game_preturn(&data->game);
 			if (data->game.chip_a >= 0 && data->game.chip_b >= 0)
 				move_gui_cells(data->visuals.gui, data->game.config->color_count, data->game.chip_a, data->game.chip_b);
@@ -249,6 +273,19 @@ static void	frame(void *param)
 	for (int i = 0; i < 6; i++)
 		data->visuals.bg_gradients[i]->enabled = false;
 	data->visuals.bg_gradients[data->game.gravity]->enabled = true;
+
+	if (data->visuals.winner_str != NULL)
+		mlx_delete_image(data->visuals.mlx, data->visuals.winner_str);
+	data->visuals.winner_str = NULL;
+	if (data->winner != -1) {
+		char winner_text[1024];
+		sprintf(winner_text, "%s wins!", data->game.players[data->winner].exe_name);
+		int winner_x = data->game.config->window_width / 2 - strlen(winner_text) * 5;
+		if (data->winner == 0)
+			data->visuals.winner_str = mlx_put_string(data->visuals.mlx, winner_text, winner_x, 10);
+		if (data->winner == 1)
+			data->visuals.winner_str = mlx_put_string(data->visuals.mlx, winner_text, winner_x, 10);
+	}
 }
 
 int main(int argc, char **argv)
@@ -272,13 +309,14 @@ int main(int argc, char **argv)
 		// place_wall(&data.game, 2, 1, -3);
 		// place_wall(&data.game, 2, 2, -4);
 		// place_wall(&data.game, 3, -3, 0);
-		// place_wall(&data.game, 0, 0, 0);
-		// place_wall(&data.game, 1, -1, 0);
+		// place_wall(&data.game, -3, 5, -2);
+		// place_wall(&data.game, -4, -2, 6);
 		// place_wall(&data.game, 0, -1, 1);
-		// place_wall(&data.game, -1, 0, 1);
+		// place_wall(&data.game, -7, 0, 7);
 		// place_wall(&data.game, -1, 1, 0);
-		// place_wall(&data.game, 0, 1, -1);
+		// place_wall(&data.game, 7, -7, 0);
 		// place_wall(&data.game, 1, 0, -1);
+		// place_wall(&data.game, 7, -3, -4);
 		make_first_frame(&data.visuals, &data.game, &config);
 		mlx_key_hook(mlx, process_movement, &data);
 		mlx_loop_hook(mlx, frame, &data);

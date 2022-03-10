@@ -7,14 +7,6 @@
 #include <stdio.h>
 #include "MLX42/MLX42.h"
 
-// Numpad values (unused).
-# define NUMPAD_7_KEY 89
-# define NUMPAD_8_KEY 91
-# define NUMPAD_9_KEY 92
-# define NUMPAD_4_KEY 86
-# define NUMPAD_5_KEY 87
-# define NUMPAD_6_KEY 88
-
 //instance levels
 # define DISMISS -1
 # define BACKROUND 0
@@ -23,13 +15,6 @@
 # define GRID_ODD 30
 # define HEXAGON_EVEN 40
 # define HEXAGON_ODD 50
-
-// Key values (also unused).
-# define UP_ARROW_KEY 126
-# define DOWN_ARROW_KEY 125
-# define LEFT_ARROW_KEY 123
-# define RIGHT_ARROW_KEY 124
-# define ESC_KEY 53
 
 // Setting all structures names from "*" to "*_t".
 typedef struct chip chip_t;
@@ -42,6 +27,7 @@ typedef struct cluster cluster_t;
 typedef struct config config_t;
 typedef struct visuals visuals_t;
 typedef struct gui gui_t;
+typedef struct bag_count bag_count_t;
 
 // Data that gets copied when a chip moves to another cell.
 struct chip {
@@ -87,13 +73,15 @@ struct config {
 	int		window_width;
 	int		window_height;
 	int		debug;
+	int		accept_input;
 };
 
 // Structure used for bot implementation
 struct player {
-	pid_t	pid;
-	FILE	*in;
-	FILE	*out;
+	pid_t		pid;
+	FILE		*in;
+	FILE		*out;
+	const char	*exe_name;
 };
 
 struct gui {
@@ -117,6 +105,13 @@ struct game {
 	int			chip_a, chip_b;
 };
 
+struct bag_count {
+	mlx_image_t	*text;
+	int			background;
+	int			x;
+	int			y;
+};
+
 struct visuals {
 	mlx_t		*mlx;
 	int			cell_diagonal;
@@ -126,6 +121,8 @@ struct visuals {
 	grid_t		grid;
 	gui_t		gui[4];
 	bool		skip_next;
+	mlx_image_t	*winner_str;
+	bag_count_t	bag_counts[2];
 };
 
 // All data is stored in this structure

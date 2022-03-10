@@ -12,6 +12,7 @@ static void popen2(const char* path, player_t* player)
 	pipe(in);
 	pipe(out);
 	player->pid = fork();
+	player->exe_name = path;
 	if (player->pid == 0)
 	{
 		close(in[STDOUT_FILENO]);
@@ -195,12 +196,6 @@ int game_start(game_t *game, const char *p1, const char *p2)
 
 void game_preturn(game_t *game)
 {
-	if (game->config->debug) {
-		fprintf(stderr, "chips");
-		for (int i = 0; i < game->config->color_count; i++)
-			fprintf(stderr, " %d", game->chip_counts[i]);
-		fprintf(stderr, "\n");
-	}
 	game->chip_a = game_take_random(game);
 	game->chip_b = -1;
 	if (game->chip_a == -1)
@@ -212,7 +207,7 @@ void game_preturn(game_t *game)
 	game->chip_counts[game->chip_b] -= 1;
 }
 
-int game_turn(game_t *game)
+static int game_turn_internal(game_t *game)
 {
 	int q, r, s, value, pos;
 	char action[8];
@@ -303,8 +298,15 @@ int game_turn(game_t *game)
 	int winner = game_winner(game);
 	if (winner != -1) {
 		winner = winner * 2 / game->config->color_count;
-		printf("Player %d wins!\n", winner + 1);
 		return winner;
 	}
 	return -1;
+}
+
+int game_turn(game_t *game)
+{
+	int winner = game_turn_internal(game);
+	if (winner != -1)
+		printf("Player %d wins\n", winner + 1);
+	return winner;
 }
