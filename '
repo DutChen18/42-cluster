@@ -221,22 +221,15 @@ int game_preturn(game_t *game)
 	return -1;
 }
 
-int game_postturn_rotate(game_t *game, int value)
+void game_postturn_rotate(game_t *game, int value)
 {
 	if (game->players[!game->turn].is_bot)
 		fprintf(game->players[!game->turn].out, "rotate %d\n", value);
 	game_rotate(game, value);
 	game->turn = !game->turn;
-
-	int winner = game_winner(game);
-	if (winner != -1) {
-		winner = winner * 2 / game->config->color_count;
-		return winner;
-	}
-	return -1;
 }
 
-int game_postturn_drop(game_t *game, int q, int r, int s, int pos, int value)
+void game_postturn_drop(game_t *game, int q, int r, int s, int pos, int value)
 {
 	compute_pos(pos, game->config->grid_size, game->gravity, &q, &r, &s);
 	if (value == game->chip_a)
@@ -247,13 +240,6 @@ int game_postturn_drop(game_t *game, int q, int r, int s, int pos, int value)
 		fprintf(game->players[!game->turn].out, "drop %d %d\n", pos, value);
 	game_drop(game, q, r, s, value);
 	game->turn = !game->turn;
-
-	int winner = game_winner(game);
-	if (winner != -1) {
-		winner = winner * 2 / game->config->color_count;
-		return winner;
-	}
-	return -1;
 }
 
 static int game_turn_internal(game_t *game)
@@ -288,9 +274,7 @@ static int game_turn_internal(game_t *game)
 		}
 
 		// Perform rotation
-		int winner = game_postturn_rotate(game, value);
-		disarm_timer();
-		return winner;
+		game_postturn_rotate(game, value);
 	} else if (strcmp(action, "drop") == 0) {
 		// Get and validate parameters
 		if (fscanf(game->players[game->turn].in, "%d %d", &pos, &value) != 2) {
@@ -322,9 +306,7 @@ static int game_turn_internal(game_t *game)
 		}
 
 		// Perform drop
-		int winner = game_postturn_drop(game, q, r, s, pos, value);
-		disarm_timer();
-		return winner;
+		game_postturn_drop(game, q, r, s, pos, value);
 	} else {
 		// Invalid action
 		disarm_timer();
@@ -332,6 +314,15 @@ static int game_turn_internal(game_t *game)
 			fprintf(stderr, "Player %d invalid action: \"%s\" expected \"rotate\" or \"drop\"\n", game->turn + 1, action);
 		return !game->turn;
 	}
+	disarm_timer();
+
+	// Invert turn and check winner
+	int winner = game_winner(game);
+	if (winner != -1) {
+		winner = winner * 2 / game->config->color_count;
+		return winner;
+	}
+	return -1;
 }
 
 int game_turn(game_t *game)
