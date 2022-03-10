@@ -142,6 +142,7 @@ int		get_border_size(int height);
 void	hexagon_border_init(visuals_t *visuals, hexagon_t *obj, int width, int height, int color);
 void	place_border(config_t *config, visuals_t *visuals, cell_t *cell, hexagon_t *texture);
 void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color);
+void	place_hexagon(config_t *config, visuals_t *visuals, cell_t *cell);
 
 // color functions
 int	create_color(int r, int g, int b, int t);

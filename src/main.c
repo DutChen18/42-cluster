@@ -104,14 +104,15 @@ void set_background(config_t *config, visuals_t *visuals, int color)
 	}
 }
 
-void	move_gui_cells(gui_t *obj, int color, int start, int end)
+void	move_gui_cells(gui_t *obj, int color_count, int chip_a, int chip_b)
 {
-	for (int i = start; i < end; i++)
-	{
-		if (obj->colors[i].img->instances->z == 1)
-			obj->colors[i].img->instances->z = DISMISS;
-	}
-	obj->colors[color].img->instances->z = obj->layer;
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < color_count; j++)
+			obj[i].colors[j].img->instances[i].z = DISMISS;
+	int player = chip_a < (color_count / 2) ? 0 : 2;
+
+	obj[player].colors[chip_a].img->instances[player].z = HEXAGON_EVEN;
+	obj[player + 1].colors[chip_b].img->instances[player + 1].z = HEXAGON_ODD;
 }
 
 void	place_gui_cells(visuals_t *visuals, int color_count)
@@ -126,7 +127,7 @@ void	place_gui_cells(visuals_t *visuals, int color_count)
 			visuals->gui[i].back_cell->img->instances[index].z = GRID_ODD;
 		for (int j = 0; j < color_count; j++)
 		{
-			index = mlx_image_to_window(visuals->mlx, visuals->gui[i].colors[j].img, visuals->gui[i].x, visuals->gui[i].y);
+			index = mlx_image_to_window(visuals->mlx, visuals->gui[i].colors[j].img, visuals->gui[i].x + visuals->gui[i].back_cell->width / 8, visuals->gui[i].y + visuals->gui[i].back_cell->height / 8);
 			visuals->gui[i].colors[j].img->instances[index].z = DISMISS;
 		}
 	}
@@ -148,11 +149,11 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	const int	width = get_width_from_height(height);
 	const int	border_size = get_border_size(height);
 
-	hexagon_t	*colors = malloc(sizeof(*colors) * config->color_count);
 	hexagon_t	back_cell;
+	hexagon_t	*colors = malloc(sizeof(*colors) * config->color_count);
+	hexagon_border_init(visuals, &back_cell, width, height, 0x222222FF);
 	for (int i = 0; i < config->color_count; i++)
 		hexagon_init(visuals->mlx, &colors[i], width, height, game->colors[i]);
-	hexagon_border_init(visuals, &back_cell, width, height, 0x222222FF);
 	
 	y = config->window_height / 2 + (int) (visuals->cell_height * (config->grid_size - 0.5) - 1.25 * height);
 	x = config->window_width / 2 - visuals->cell_diagonal * config->grid_size / 2;
@@ -246,6 +247,8 @@ static void	frame(void *param)
 		if (!data->moving && data->winner == -1)
 		{
 			game_preturn(&data->game);
+			if (data->game.chip_a >= 0 && data->game.chip_b >= 0)
+				move_gui_cells(data->visuals.gui, data->game.config->color_count, data->game.chip_a, data->game.chip_b);
 			data->needs_move = true;
 			break;
 		}

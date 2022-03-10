@@ -92,7 +92,29 @@ static void set_sizes_cells(config_t *config, visuals_t *visuals, int height, in
 	if (visuals->cell_height < get_height_from_width(visuals->cell_diagonal))
 		visuals->cell_diagonal = get_width_from_height(visuals->cell_height);
 	else
-		visuals->cell_height = get_height_from_width(visuals->cell_height);
+		visuals->cell_height = get_height_from_width(visuals->cell_diagonal);
+}
+
+
+void place_color_gui(config_t *config, visuals_t *visuals, cell_t *cell, hexagon_t *texture, int color, float offset)
+{
+	int index, x, y;
+	const int border_size = get_border_size(visuals->cell_height);
+	x = (int) (visuals->cell_height - border_size / 2) * (cell->x + offset) + (int) (config->window_width / 2 - texture->width / 2);
+	y = (int) (visuals->cell_height - border_size / 2) * cell->y + (int) (config->window_height / 2 - texture->height / 2);
+	index = mlx_image_to_window(visuals->mlx, texture->img, x, y);
+	if (cell->q % 2 == 0)
+		texture->img->instances[index].z = GRID_EVEN;
+	else
+		texture->img->instances[index].z = GRID_ODD;
+	hexagon_t *hex = &visuals->hexa_tiles[color];
+	(void)hex;
+	printf("texture: width=%d	height=%d\n", texture->width, texture->height);
+	printf("hex: width=%d	height=%d\n", hex->width, hex->height);
+	x = (int) (visuals->cell_height - border_size / 2) * (cell->x + offset) + (int) (config->window_width / 2 - hex->width / 2);
+	y = (int) (visuals->cell_height - border_size / 2) * cell->y + (int) (config->window_height / 2 - hex->height / 2);
+	index = mlx_image_to_window(visuals->mlx, hex->img, x, y);
+	hex->img->instances[index].z = HEXAGON_EVEN;
 }
 
 void grid_init(visuals_t *visuals, game_t *game)
@@ -102,9 +124,14 @@ void grid_init(visuals_t *visuals, game_t *game)
 	visuals->grid.height = game->config->window_height;
 	visuals->grid.grid = mlx_new_image(visuals->mlx, visuals->grid.width, visuals->grid.height);
 	for (int i = 0; i < game->cell_count; i++)
+	{
 		if (game->cells[i].wall == false)
 			place_border(game->config, visuals, &game->cells[i], &visuals->grid.one_cell);
-
+		if (game->cells[i].q == game->config->grid_size - 1 && abs(game->cells[i].r) < game->config->color_count / 2)
+			place_color_gui(game->config, visuals, &game->cells[i], &visuals->grid.one_cell, game->config->color_count - 1 - abs(game->cells[i].r), 1.5);
+		if (game->cells[i].q == -(game->config->grid_size - 1) && game->cells[i].s < game->config->color_count / 2)
+			place_color_gui(game->config, visuals, &game->cells[i], &visuals->grid.one_cell, game->cells[i].s, -1.5);
+	}
 }
 
 void set_bg_gradients(config_t *config, mlx_t* mlx, mlx_image_t **bg_gradients)
@@ -141,7 +168,7 @@ void visuals_init(visuals_t *visuals, mlx_t *mlx, game_t *game)
 {
 	visuals->mlx = mlx;
 	visuals->skip_next = false;
-	set_sizes_cells(game->config, visuals, game->config->grid_size * 2 - 1, 4 + 6 * (game->config->grid_size - 1));
+	set_sizes_cells(game->config, visuals, game->config->grid_size * 2 - 1, 16 + 6 * (game->config->grid_size - 1));
 	visuals->hexa_tiles = malloc(sizeof(*visuals->hexa_tiles) * game->config->color_count);
 	for (int i = 0; i < game->config->color_count; i++)
 		hexagon_init(mlx, &visuals->hexa_tiles[i], visuals->cell_diagonal, visuals->cell_height, game->colors[i]);

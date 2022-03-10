@@ -6,6 +6,10 @@ Visuals:
 - kleuren combinaties toevoegen
 -
 
+debug:
+	- Cellen liggen iets teveel over elkaar, probleem avn met duco.
+	- Waarom segfault ie met size 100 misschien zelfde reden als hierboven
+
 
 
 - manual mode
