@@ -1,4 +1,5 @@
 #include "cluster.h"
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -6,6 +7,17 @@ void config_read(config_t *config, const char *path)
 {
 	FILE* file = fopen(path, "r");
 	char key[16];
+
+	config->use_mlx = -1;
+	config->grid_size = -1;
+	config->bot_speed = -1;
+	config->color_count = -1;
+	config->win_length = -1;
+	config->timeout = -1;
+	config->window_width = -1;
+	config->window_height = -1;
+	config->debug = -1;
+	config->accept_input = -1;
 
 	while (fscanf(file, "%15s", key) == 1) {
 		if (strcmp(key, "use_mlx") == 0) {
@@ -36,5 +48,23 @@ void config_read(config_t *config, const char *path)
 					break;
 			}
 		}
+	}
+
+	if (config->color_count > config->grid_size)
+		config->color_count = config->grid_size;
+
+	if ((config->use_mlx != 0 && config->use_mlx != 1)
+		|| config->grid_size < 4
+		|| config->bot_speed < 0
+		|| config->color_count < 2
+		|| config->color_count % 2 != 0
+		|| config->win_length < 2
+		|| config->timeout < 0
+		|| config->window_width < 500
+		|| config->window_height < 500
+		|| (config->debug != 0 && config->debug != 1)
+		|| (config->accept_input != 0 && config->accept_input != 1)) {
+		fprintf(stderr, "invalid config file\n");
+		exit(EXIT_FAILURE);
 	}
 }
