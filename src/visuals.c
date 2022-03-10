@@ -87,8 +87,8 @@ void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
 
 static void set_sizes_cells(config_t *config, visuals_t *visuals, int height, int width)
 {
-	visuals->cell_height = config->window_height / height;
-	visuals->cell_diagonal = config->window_width / width * 4;
+	visuals->cell_height = (float) config->window_height / height;
+	visuals->cell_diagonal = (float) config->window_width / width * 4;
 	if (visuals->cell_height < get_height_from_width(visuals->cell_diagonal))
 		visuals->cell_diagonal = get_width_from_height(visuals->cell_height);
 	else
