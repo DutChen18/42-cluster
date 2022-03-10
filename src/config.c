@@ -50,8 +50,8 @@ void config_read(config_t *config, const char *path)
 		}
 	}
 
-	if (config->color_count > config->grid_size)
-		config->color_count = config->grid_size;
+	if (config->color_count / 2 > config->grid_size)
+		config->color_count = config->grid_size * 2;
 
 	if ((config->use_mlx != 0 && config->use_mlx != 1)
 		|| config->grid_size < 4
