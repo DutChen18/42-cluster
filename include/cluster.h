@@ -92,9 +92,10 @@ struct config {
 
 // Structure used for bot implementation
 struct player {
-	pid_t	pid;
-	FILE	*in;
-	FILE	*out;
+	pid_t		pid;
+	FILE		*in;
+	FILE		*out;
+	const char	*exe_name;
 };
 
 struct gui {

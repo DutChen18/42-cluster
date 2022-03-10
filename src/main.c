@@ -144,10 +144,11 @@ void	one_gui_cell(gui_t *obj, int x, int y, hexagon_t *colors, hexagon_t *back_c
 
 void	init_bag_count(visuals_t *visuals, hexagon_t *background, bag_count_t *bag, int x, int y)
 {
-	bag->background = mlx_image_to_window(visuals->mlx, background->img, x, y);
+	(void) background;
+	// bag->background = mlx_image_to_window(visuals->mlx, background->img, x, y);
 	bag->text = NULL;
 	bag->x = x;
-	bag->y = y;
+	bag->y = y + visuals->grid.height / 8;
 }
 
 void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
@@ -176,6 +177,7 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	one_gui_cell(&visuals->gui[3], mirror_x, y, colors, &back_cell, HEXAGON_ODD);
 	
 	x -= width / 4 * 3 - border_size / 4;
+	x += visuals->grid.height / 16;
 	y -= height / 2 - border_size / 4;
 	mirror_x = config->window_width - x - width;
 	init_bag_count(visuals, &back_cell, &visuals->bag_counts[0], x, y);
@@ -264,7 +266,7 @@ static void	frame(void *param)
 				for (int j = 0; j < data->game.config->color_count / 2; j++)
 					total += data->game.chip_counts[j + i * data->game.config->color_count / 2];
 				sprintf(buf, "%04d", total);
-				bag->text = mlx_put_string(data->visuals.mlx, buf, bag->x + 24, bag->y + 28);
+				bag->text = mlx_put_string(data->visuals.mlx, buf, bag->x + data->visuals.grid.height / 28 - 14, bag->y + data->visuals.grid.height / 28 - 10);
 			}
 			game_preturn(&data->game);
 			if (data->game.chip_a >= 0 && data->game.chip_b >= 0)
@@ -280,10 +282,15 @@ static void	frame(void *param)
 	if (data->visuals.winner_str != NULL)
 		mlx_delete_image(data->visuals.mlx, data->visuals.winner_str);
 	data->visuals.winner_str = NULL;
-	if (data->winner == 0)
-		data->visuals.winner_str = mlx_put_string(data->visuals.mlx, "Player 1 wins!", 0, 0);
-	if (data->winner == 1)
-		data->visuals.winner_str = mlx_put_string(data->visuals.mlx, "Player 2 wins!", 0, 0);
+	if (data->winner != -1) {
+		char winner_text[1024];
+		sprintf(winner_text, "%s wins!", data->game.players[data->winner].exe_name);
+		int winner_x = data->game.config->window_width / 2 - strlen(winner_text) * 5;
+		if (data->winner == 0)
+			data->visuals.winner_str = mlx_put_string(data->visuals.mlx, winner_text, winner_x, 10);
+		if (data->winner == 1)
+			data->visuals.winner_str = mlx_put_string(data->visuals.mlx, winner_text, winner_x, 10);
+	}
 }
 
 int main(int argc, char **argv)
