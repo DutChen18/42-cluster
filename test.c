@@ -22,11 +22,13 @@ int main(void)
 	char action[256];
 	float timeout;
 	int a, b;
+	int c;
 	setbuf(stdout, NULL);
 	setbuf(stdin, NULL);
 	setbuf(stderr, NULL);
 	scanf(" init %d %d %d %f %d", &color_count, &chip_count, &grid_size, &timeout, &id);
-	printf("color %d\n", arc4random() % 6);
+	c = arc4random() % 6;
+	printf("color %d\n", c == 2 ? 0 : c);
 	if (id == 1) {
 		read_action(action, &pos, &value);
 	}

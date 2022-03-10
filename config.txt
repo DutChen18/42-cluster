@@ -5,13 +5,13 @@ use_mlx 1
 bot_speed 0.0025
 
 # side length of the game grid
-grid_size 6
+grid_size 20
 
 # number of colors per player
 color_count 2
 
 # colors in a row required to win
-win_length 6
+win_length 5
 
 # time bots have to respond in seconds
 timeout 1.0
