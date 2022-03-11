@@ -17,6 +17,7 @@ void config_read(config_t *config, const char *path)
 	config->window_width = -1;
 	config->window_height = -1;
 	config->debug = -1;
+	config->autoclose = -1;
 
 	while (fscanf(file, "%15s", key) == 1) {
 		if (strcmp(key, "use_mlx") == 0) {
@@ -38,6 +39,8 @@ void config_read(config_t *config, const char *path)
 			fscanf(file, "%d", &config->window_height);
 		} else if (strcmp(key, "debug") == 0) {
 			fscanf(file, "%d", &config->debug);
+		} else if (strcmp(key, "autoclose") == 0) {
+			fscanf(file, "%d", &config->autoclose);
 		} else if (strcmp(key, "#") == 0) {
 			while (1) {
 				int c = fgetc(file);
@@ -59,7 +62,8 @@ void config_read(config_t *config, const char *path)
 		|| config->timeout < 0
 		|| config->window_width < 500
 		|| config->window_height < 500
-		|| (config->debug != 0 && config->debug != 1)) {
+		|| (config->debug != 0 && config->debug != 1)
+		|| (config->autoclose != 0 && config->autoclose != 1)) {
 		fprintf(stderr, "invalid config file\n");
 		exit(EXIT_FAILURE);
 	}

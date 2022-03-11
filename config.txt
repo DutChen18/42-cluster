@@ -22,3 +22,6 @@ window_height 1000
 
 # debug mode
 debug 1
+
+# automatically exit the program when the game is over
+autoclose 0

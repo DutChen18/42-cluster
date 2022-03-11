@@ -261,6 +261,10 @@ static void	frame(void *param)
 {
 	cluster_t	*data = (cluster_t*)param;
 
+	if (data->winner != -1 && data->game.config->autoclose)
+	{
+		exit(EXIT_SUCCESS);
+	}
 	if (data->visuals.skip_next)
 	{
 		data->visuals.skip_next = false;

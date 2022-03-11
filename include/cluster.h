@@ -73,6 +73,7 @@ struct config {
 	int		window_width;
 	int		window_height;
 	int		debug;
+	int		autoclose;
 };
 
 // Structure used for bot implementation
