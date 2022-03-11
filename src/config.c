@@ -54,7 +54,6 @@ void config_read(config_t *config, const char *path)
 		config->color_count = config->grid_size * 2;
 
 	if ((config->use_mlx != 0 && config->use_mlx != 1)
-		|| config->grid_size < 4
 		|| config->bot_speed < 0
 		|| config->color_count < 2
 		|| config->color_count % 2 != 0
@@ -68,3 +67,5 @@ void config_read(config_t *config, const char *path)
 		exit(EXIT_FAILURE);
 	}
 }
+
+		// || config->grid_size < 4

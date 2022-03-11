@@ -122,7 +122,7 @@ void	place_gui_cells(visuals_t *visuals, int color_count)
 			visuals->gui[i].back_cell->img->instances[index].z = GRID_ODD;
 		for (int j = 0; j < color_count; j++)
 		{
-			index = mlx_image_to_window(visuals->mlx, visuals->gui[i].colors[j].img, visuals->gui[i].x + visuals->gui[i].back_cell->width / 8, visuals->gui[i].y + visuals->gui[i].back_cell->height / 8);
+			index = mlx_image_to_window(visuals->mlx, visuals->gui[i].colors[j].img, visuals->gui[i].x + visuals->gui[i].back_cell->width /8, visuals->gui[i].y + visuals->gui[i].back_cell->height / 8);
 			visuals->gui[i].colors[j].img->instances[index].z = DISMISS;
 		}
 	}
@@ -159,7 +159,7 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	for (int i = 0; i < config->color_count; i++)
 		hexagon_init(visuals->mlx, &colors[i], width, height, game->colors[i]);
 	
-	y = config->window_height / 2 + (int) (visuals->cell_height * (config->grid_size - 0.5) - 1.25 * height);
+	y = config->window_height / 2 + (int) ((visuals->cell_height - get_border_size(visuals->cell_height) / 2) * (config->grid_size - 0.5)) - height;
 	x = config->window_width / 2 - visuals->cell_diagonal * config->grid_size / 2;
 	mirror_x = config->window_width - x - width;
 	one_gui_cell(&visuals->gui[1], x, y, colors, &back_cell, HEXAGON_ODD);
@@ -181,12 +181,25 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	place_gui_cells(visuals, config->color_count);
 }
 
+void	put_exe_name(game_t *game, visuals_t *visuals)
+{
+	int x, y;
+
+	int grid_width = ((game->config->grid_size - 1) * 0.75) * visuals->cell_diagonal;
+	x = game->config->window_width / 2 - grid_width;
+	y = game->config->window_height / 2 - visuals->cell_height * (float)(game->config->grid_size - 0.5);
+	mlx_put_string(visuals->mlx, game->players[0].exe_name, x, y);
+	x = x + 2 * grid_width - strlen(game->players[1].exe_name) * 10;
+	mlx_put_string(visuals->mlx, game->players[1].exe_name, x, y);
+}
+
 void make_first_frame(visuals_t *visuals, game_t *game, config_t *config)
 {
 	set_background(game->config, visuals, 0x333333FF);
 	grid_init(visuals, game);
 	gui_init(visuals, config, game);
 	mlx_image_to_window(visuals->mlx, visuals->grid.grid, 0, 0);
+	put_exe_name(game, visuals);
 }
 
 void	place_wall(game_t *game, int q, int r, int s)
@@ -383,13 +396,14 @@ int main(int argc, char **argv)
 		// place_wall(&data.game, 2, 1, -3);
 		// place_wall(&data.game, 2, 2, -4);
 		// place_wall(&data.game, 3, -3, 0);
-		// place_wall(&data.game, 0, 0, 0);
-		// place_wall(&data.game, 1, -1, 0);
+		// place_wall(&data.game, -3, 5, -2);
+		// place_wall(&data.game, -4, -2, 6);
 		// place_wall(&data.game, 0, -1, 1);
-		// place_wall(&data.game, -1, 0, 1);
+		// place_wall(&data.game, -7, 0, 7);
 		// place_wall(&data.game, -1, 1, 0);
-		// place_wall(&data.game, 0, 1, -1);
+		// place_wall(&data.game, 7, -7, 0);
 		// place_wall(&data.game, 1, 0, -1);
+		// place_wall(&data.game, 7, -3, -4);
 		make_first_frame(&data.visuals, &data.game, &config);
 		mlx_key_hook(mlx, process_movement, &data);
 		mlx_loop_hook(mlx, frame, &data);
