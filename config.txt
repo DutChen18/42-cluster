@@ -2,16 +2,16 @@
 use_mlx 1
 
 # bot speed, lower = faster
-bot_speed 0.001
+bot_speed 0.05
 
 # side length of the game grid, grid_size >= 4
-grid_size 13
+grid_size 6
 
 # number of colors per player, will be set to grid_size if color_count > grid_size
-color_count 5
+color_count 2
 
 # colors in a row required to win
-win_length 5
+win_length 4
 
 # time bots have to respond in seconds
 timeout 1.0
@@ -22,6 +22,3 @@ window_height 1080
 
 # debug mode
 debug 1
-
-# allow rotation using numpad
-accept_input 1

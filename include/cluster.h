@@ -73,7 +73,6 @@ struct config {
 	int		window_width;
 	int		window_height;
 	int		debug;
-	int		accept_input;
 };
 
 // Structure used for bot implementation
@@ -82,6 +81,7 @@ struct player {
 	FILE		*in;
 	FILE		*out;
 	const char	*exe_name;
+	bool		is_bot;
 };
 
 struct gui {
@@ -134,6 +134,8 @@ struct cluster {
 	double			time;
 	int				winner;
 	bool			needs_move;
+	bool			left_state;
+	bool			right_state;
 };
 
 int		get_border_size(int height);
@@ -161,8 +163,11 @@ void game_rotate(game_t *game, int gravity);
 void game_drop(game_t *game, int q, int r, int s, int value);
 int game_winner(game_t *game);
 int game_start(game_t *game, const char *p1, const char *p2);
-void game_preturn(game_t *game);
+
+int game_preturn(game_t *game);
 int game_turn(game_t *game);
+int game_postturn_rotate(game_t *game, int value);
+int game_postturn_drop(game_t *game, int q, int r, int s, int pos, int value);
 
 void grid_init(visuals_t *visuals, game_t *game);
 void set_bg_gradients(config_t *config, mlx_t* mlx, mlx_image_t **bg_gradients);

@@ -122,7 +122,7 @@ void	place_gui_cells(visuals_t *visuals, int color_count)
 			visuals->gui[i].back_cell->img->instances[index].z = GRID_ODD;
 		for (int j = 0; j < color_count; j++)
 		{
-			index = mlx_image_to_window(visuals->mlx, visuals->gui[i].colors[j].img, visuals->gui[i].x + visuals->gui[i].back_cell->width /10, visuals->gui[i].y + visuals->gui[i].back_cell->height / 10);
+			index = mlx_image_to_window(visuals->mlx, visuals->gui[i].colors[j].img, visuals->gui[i].x + visuals->gui[i].back_cell->width /8, visuals->gui[i].y + visuals->gui[i].back_cell->height / 8);
 			visuals->gui[i].colors[j].img->instances[index].z = DISMISS;
 		}
 	}
@@ -181,12 +181,25 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	place_gui_cells(visuals, config->color_count);
 }
 
+void	put_exe_name(game_t *game, visuals_t *visuals)
+{
+	int x, y;
+
+	int grid_width = ((game->config->grid_size - 1) * 0.75) * visuals->cell_diagonal;
+	x = game->config->window_width / 2 - grid_width;
+	y = game->config->window_height / 2 - visuals->cell_height * (float)(game->config->grid_size - 0.5);
+	mlx_put_string(visuals->mlx, game->players[0].exe_name, x, y);
+	x = x + 2 * grid_width - strlen(game->players[1].exe_name) * 10;
+	mlx_put_string(visuals->mlx, game->players[1].exe_name, x, y);
+}
+
 void make_first_frame(visuals_t *visuals, game_t *game, config_t *config)
 {
 	set_background(game->config, visuals, 0x333333FF);
 	grid_init(visuals, game);
 	gui_init(visuals, config, game);
 	mlx_image_to_window(visuals->mlx, visuals->grid.grid, 0, 0);
+	put_exe_name(game, visuals);
 }
 
 void	place_wall(game_t *game, int q, int r, int s)
@@ -201,28 +214,60 @@ void	place_wall(game_t *game, int q, int r, int s)
 
 static void	process_movement(mlx_key_data_t keydata, void* param)
 {
-	cluster_t *data;
+	cluster_t	*data = (cluster_t*) param;
 
-	data = (cluster_t*)param;
 	if (keydata.key == MLX_KEY_ESCAPE)
 		exit(0);
-	if (data->moving == false && data->game.config->accept_input)
+	if (data->needs_move && !data->game.players[data->game.turn].is_bot)
 	{
-		data->moving = true;
+		int direction = -1;
 		if (keydata.key == MLX_KEY_W && keydata.action == 1)
-			game_rotate(&data->game, 0);
+			direction = 0;
 		else if (keydata.key == MLX_KEY_S && keydata.action == 1)
-			game_rotate(&data->game, 3);
+			direction = 3;
 		else if (keydata.key == MLX_KEY_E && keydata.action == 1)
-			game_rotate(&data->game, 1);
+			direction = 1;
 		else if (keydata.key == MLX_KEY_D && keydata.action == 1)
-			game_rotate(&data->game, 2);
+			direction = 2;
 		else if (keydata.key == MLX_KEY_A && keydata.action == 1)
-			game_rotate(&data->game, 4);
+			direction = 4;
 		else if (keydata.key == MLX_KEY_Q && keydata.action == 1)
-			game_rotate(&data->game, 5);
-		data->time = 0;
+			direction = 5;
+		if (direction != -1)
+		{
+			data->winner = game_postturn_rotate(&data->game, direction);
+			data->needs_move = false;
+			data->time = 0;
+		}
 	}
+}
+
+static cell_t *get_cell_pos(cluster_t *data, int *pos)
+{
+	int mx, my;
+	float x, y;
+	cell_t *cell = NULL;
+	mlx_get_mouse_pos(data->visuals.mlx, &mx, &my);
+	x = (mx - data->game.config->window_width / 2.0) / data->visuals.cell_height;
+	y = (my - data->game.config->window_height / 2.0) / data->visuals.cell_height;
+	for (int i = 0; i < data->game.cell_count; i++) {
+		cell_t *tmp = &data->game.cells[i];
+		if (sqrtf(powf(x - tmp->x, 2.0f) + powf(y - tmp->y, 2.0f)) < 0.5f) {
+			cell = tmp;
+			break;
+		}
+	}
+	if (cell == NULL)
+		return NULL;
+	switch (data->game.gravity) {
+	case 0: *pos = -cell->q; break;
+	case 3: *pos = cell->q; break;
+	case 1: *pos = cell->s; break;
+	case 4: *pos = -cell->s; break;
+	case 2: *pos = -cell->r; break;
+	case 5: *pos = cell->r; break;
+	}
+	return cell;
 }
 
 static void	frame(void *param)
@@ -234,14 +279,43 @@ static void	frame(void *param)
 		data->visuals.skip_next = false;
 		return;
 	}
-	if (data->needs_move)
+	if (data->needs_move && data->game.players[data->game.turn].is_bot)
 	{
 		data->needs_move = false;
 		data->visuals.skip_next = true;
 		data->winner = game_turn(&data->game);
 		move_hexagons(&data->visuals, &data->game);
 		data->time = 0;
-		return;
+	}
+
+	if (mlx_is_mouse_down(data->visuals.mlx, MLX_MOUSE_BUTTON_LEFT)) {
+		if (!data->left_state && data->needs_move && !data->game.players[data->game.turn].is_bot) {
+			int pos;
+			cell_t *cell = get_cell_pos(data, &pos);
+			if (cell != NULL && cell->chip.value == -1) {
+				data->winner = game_postturn_drop(&data->game, cell->q, cell->r, cell->s, pos, data->game.chip_a);
+				data->needs_move = false;
+				data->time = 0;
+			}
+		}
+		data->left_state = true;
+	} else {
+		data->left_state = false;
+	}
+
+	if (mlx_is_mouse_down(data->visuals.mlx, MLX_MOUSE_BUTTON_RIGHT)) {
+		if (!data->right_state && data->needs_move && !data->game.players[data->game.turn].is_bot) {
+			int pos;
+			cell_t *cell = get_cell_pos(data, &pos);
+			if (cell != NULL && cell->chip.value == -1) {
+				data->winner = game_postturn_drop(&data->game, cell->q, cell->r, cell->s, pos, data->game.chip_b);
+				data->needs_move = false;
+				data->time = 0;
+			}
+		}
+		data->right_state = true;
+	} else {
+		data->right_state = false;
 	}
 
 	data->time += data->visuals.mlx->delta_time;
@@ -249,7 +323,7 @@ static void	frame(void *param)
 	{
 		data->time -= data->game.config->bot_speed;
 		data->moving = move_hexagons(&data->visuals, &data->game);
-		if (!data->moving && data->winner == -1)
+		if (!data->moving && data->winner == -1 && !data->needs_move)
 		{
 			for (int i = 0; i < 2; i++)
 			{
@@ -263,13 +337,15 @@ static void	frame(void *param)
 				sprintf(buf, "%04d", total);
 				bag->text = mlx_put_string(data->visuals.mlx, buf, bag->x + data->visuals.grid.height / 28 - 14, bag->y + data->visuals.grid.height / 28 - 10);
 			}
-			game_preturn(&data->game);
+			data->winner = game_preturn(&data->game);
 			if (data->game.chip_a >= 0 && data->game.chip_b >= 0)
 				move_gui_cells(data->visuals.gui, data->game.config->color_count, data->game.chip_a, data->game.chip_b);
-			data->needs_move = true;
+			if (data->winner == -1)
+				data->needs_move = true;
 			break;
 		}
 	}
+
 	for (int i = 0; i < 6; i++)
 		data->visuals.bg_gradients[i]->enabled = false;
 	data->visuals.bg_gradients[data->game.gravity]->enabled = true;
@@ -294,18 +370,25 @@ int main(int argc, char **argv)
 	mlx_t		*mlx;
 	config_t	config;
 
-	if (argc != 3) {
+	config_read(&config, "config.txt");
+	if (argc > 3 || (argc != 3 && !config.use_mlx)) {
 		fprintf(stderr, "usage: %s [player 1] [player 2]", argv[0]);
 		return EXIT_FAILURE;
 	}
-	config_read(&config, "config.txt");
 	game_init(&data.game, &config);
-	data.winner = game_start(&data.game, argv[1], argv[2]);
+	if (argc == 2)
+		data.winner = game_start(&data.game, NULL, argv[1]);
+	else if (argc == 3)
+		data.winner = game_start(&data.game, argv[1], argv[2]);
+	else
+		data.winner = game_start(&data.game, NULL, NULL);
 	if (config.use_mlx) {
 		mlx = mlx_init(config.window_width, config.window_height, "cluster", 1);
 		visuals_init(&data.visuals, mlx, &data.game);
 		data.time = 0;
 		data.needs_move = false;
+		data.left_state = false;
+		data.right_state = false;
 		// place_wall(&data.game, 2, 1, -3);
 		// place_wall(&data.game, 2, 2, -4);
 		// place_wall(&data.game, 3, -3, 0);

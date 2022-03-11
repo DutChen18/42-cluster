@@ -13,6 +13,7 @@ static void popen2(const char* path, player_t* player)
 	pipe(out);
 	player->pid = fork();
 	player->exe_name = path;
+	player->is_bot = true;
 	if (player->pid == 0)
 	{
 		close(in[STDOUT_FILENO]);
@@ -110,83 +111,95 @@ int game_start(game_t *game, const char *p1, const char *p2)
 	unsigned col1, col2;
 	char action[8];
 
-	arm_timer(game->config->timeout);
-	popen2(p1, &game->players[0]);
-	fprintf(game->players[0].out, "init %d %d %d %f 0\n",
-		game->config->color_count,
-		game->cell_count / game->config->color_count,
-		game->config->grid_size,
-		game->config->timeout);
-	if (fscanf(game->players[0].in, "%7s", action) != 1) {
+	if (p1 != NULL) {
+		arm_timer(game->config->timeout);
+		popen2(p1, &game->players[0]);
+		fprintf(game->players[0].out, "init %d %d %d %f 0\n",
+			game->config->color_count,
+			game->cell_count / game->config->color_count,
+			game->config->grid_size,
+			game->config->timeout);
+		if (fscanf(game->players[0].in, "%7s", action) != 1) {
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player 1 did not send color command\n");
+			return 1;
+		}
+		if (strcmp(action, "color") != 0) {
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player 1 sent a wrong command: \"%s\" expected \"color\"\n", action);
+			return 1;
+		}
+		if (fscanf(game->players[0].in, "%d", &c1) != 1) {
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player 1 did not send color value\n");
+			return 1;
+		}
+		switch (c1) {
+		case 0: col1 = 0xFF0000; break;
+		case 1: col1 = 0xFFFF00; break;
+		case 3: col1 = 0x00FFFF; break;
+		case 4: col1 = 0x0000FF; break;
+		case 5: col1 = 0xFF00FF; break;
+		default:
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player 1 sent invalid color value\n");
+			return 1;
+		}
 		disarm_timer();
-		if (game->config->debug)
-			fprintf(stderr, "Player 1 did not send color command\n");
-		return 1;
+	} else {
+		game->players[0].is_bot = false;
+		game->players[0].exe_name = "player 1";
+		col1 = 0xFF0000;
 	}
-	if (strcmp(action, "color") != 0) {
+
+	if (p2 != NULL) {
+		arm_timer(game->config->timeout);
+		popen2(p2, &game->players[1]);
+		fprintf(game->players[1].out, "init %d %d %d %f 1\n",
+			game->config->color_count,
+			game->cell_count / game->config->color_count,
+			game->config->grid_size,
+			game->config->timeout);
+		if (fscanf(game->players[1].in, "%7s", action) != 1) {
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player 2 did not send color command\n");
+			return 0;
+		}
+		if (strcmp(action, "color") != 0) {
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player 2 sent a wrong command: \"%s\" expected \"color\"\n", action);
+			return 0;
+		}
+		if (fscanf(game->players[1].in, "%d", &c2) != 1) {
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player 2 did not send color value\n");
+			return 0;
+		}
+		switch (c2) {
+		case 0: col2 = 0xFF0000; break;
+		case 1: col2 = 0xFFFF00; break;
+		case 3: col2 = 0x00FFFF; break;
+		case 4: col2 = 0x0000FF; break;
+		case 5: col2 = 0xFF00FF; break;
+		default:
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player 2 sent invalid color value\n");
+			return 0;
+		}
 		disarm_timer();
-		if (game->config->debug)
-			fprintf(stderr, "Player 1 sent a wrong command: \"%s\" expected \"color\"\n", action);
-		return 1;
+	} else {
+		game->players[1].is_bot = false;
+		game->players[1].exe_name = "player 2";
+		col2 = 0xFF0000;
 	}
-	if (fscanf(game->players[0].in, "%d", &c1) != 1) {
-		disarm_timer();
-		if (game->config->debug)
-			fprintf(stderr, "Player 1 did not send color value\n");
-		return 1;
-	}
-	switch (c1) {
-	case 0: col1 = 0xFF0000; break;
-	case 1: col1 = 0xFFFF00; break;
-	case 3: col1 = 0x00FFFF; break;
-	case 4: col1 = 0x0000FF; break;
-	case 5: col1 = 0xFF00FF; break;
-	default:
-		disarm_timer();
-		if (game->config->debug)
-			fprintf(stderr, "Player 1 sent invalid color value\n");
-		return 1;
-	}
-	disarm_timer();
-	
-	arm_timer(game->config->timeout);
-	popen2(p2, &game->players[1]);
-	fprintf(game->players[1].out, "init %d %d %d %f 1\n",
-		game->config->color_count,
-		game->cell_count / game->config->color_count,
-		game->config->grid_size,
-		game->config->timeout);
-	if (fscanf(game->players[1].in, "%7s", action) != 1) {
-		disarm_timer();
-		if (game->config->debug)
-			fprintf(stderr, "Player 2 did not send color command\n");
-		return 0;
-	}
-	if (strcmp(action, "color") != 0) {
-		disarm_timer();
-		if (game->config->debug)
-			fprintf(stderr, "Player 2 sent a wrong command: \"%s\" expected \"color\"\n", action);
-		return 0;
-	}
-	if (fscanf(game->players[1].in, "%d", &c2) != 1) {
-		disarm_timer();
-		if (game->config->debug)
-			fprintf(stderr, "Player 2 did not send color value\n");
-		return 0;
-	}
-	switch (c2) {
-	case 0: col2 = 0xFF0000; break;
-	case 1: col2 = 0xFFFF00; break;
-	case 3: col2 = 0x00FFFF; break;
-	case 4: col2 = 0x0000FF; break;
-	case 5: col2 = 0xFF00FF; break;
-	default:
-		disarm_timer();
-		if (game->config->debug)
-			fprintf(stderr, "Player 2 sent invalid color value\n");
-		return 0;
-	}
-	disarm_timer();
 
 	if (col1 == 0xFF00FF && col2 == 0xFF00FF)
 		col2 = 0xFFFF00;
@@ -194,17 +207,53 @@ int game_start(game_t *game, const char *p1, const char *p2)
 	return -1;
 }
 
-void game_preturn(game_t *game)
+int game_preturn(game_t *game)
 {
 	game->chip_a = game_take_random(game);
 	game->chip_b = -1;
 	if (game->chip_a == -1)
-		return;
+		return !game->turn;
 	game->chip_counts[game->chip_a] -= 1;
 	game->chip_b = game_take_random(game);
 	if (game->chip_b == -1)
-		return;
+		return !game->turn;
 	game->chip_counts[game->chip_b] -= 1;
+	return -1;
+}
+
+int game_postturn_rotate(game_t *game, int value)
+{
+	if (game->players[!game->turn].is_bot)
+		fprintf(game->players[!game->turn].out, "rotate %d\n", value);
+	game_rotate(game, value);
+	game->turn = !game->turn;
+
+	int winner = game_winner(game);
+	if (winner != -1) {
+		winner = winner * 2 / game->config->color_count;
+		return winner;
+	}
+	return -1;
+}
+
+int game_postturn_drop(game_t *game, int q, int r, int s, int pos, int value)
+{
+	compute_pos(pos, game->config->grid_size, game->gravity, &q, &r, &s);
+	if (value == game->chip_a)
+		game->chip_counts[game->chip_b] += 1;
+	else
+		game->chip_counts[game->chip_a] += 1;
+	if (game->players[!game->turn].is_bot)
+		fprintf(game->players[!game->turn].out, "drop %d %d\n", pos, value);
+	game_drop(game, q, r, s, value);
+	game->turn = !game->turn;
+
+	int winner = game_winner(game);
+	if (winner != -1) {
+		winner = winner * 2 / game->config->color_count;
+		return winner;
+	}
+	return -1;
 }
 
 static int game_turn_internal(game_t *game)
@@ -213,12 +262,6 @@ static int game_turn_internal(game_t *game)
 	char action[8];
 
 	arm_timer(game->config->timeout);
-	if (game->chip_a == -1 || game->chip_b == -1) {
-		disarm_timer();
-		if (game->config->debug)
-			fprintf(stderr, "Player %d out of chips: chip 1: %d, chip 2: %d\n", game->turn + 1, game->chip_a, game->chip_b);
-		return !game->turn;
-	}
 	fprintf(game->players[game->turn].out, "chips %d %d\n", game->chip_a, game->chip_b);
 
 	// Get action from player
@@ -245,8 +288,9 @@ static int game_turn_internal(game_t *game)
 		}
 
 		// Perform rotation
-		fprintf(game->players[!game->turn].out, "rotate %d\n", value);
-		game_rotate(game, value);
+		int winner = game_postturn_rotate(game, value);
+		disarm_timer();
+		return winner;
 	} else if (strcmp(action, "drop") == 0) {
 		// Get and validate parameters
 		if (fscanf(game->players[game->turn].in, "%d %d", &pos, &value) != 2) {
@@ -278,12 +322,9 @@ static int game_turn_internal(game_t *game)
 		}
 
 		// Perform drop
-		if (value == game->chip_a)
-			game->chip_counts[game->chip_b] += 1;
-		else
-			game->chip_counts[game->chip_a] += 1;
-		fprintf(game->players[!game->turn].out, "drop %d %d\n", pos, value);
-		game_drop(game, q, r, s, value);
+		int winner = game_postturn_drop(game, q, r, s, pos, value);
+		disarm_timer();
+		return winner;
 	} else {
 		// Invalid action
 		disarm_timer();
@@ -291,16 +332,6 @@ static int game_turn_internal(game_t *game)
 			fprintf(stderr, "Player %d invalid action: \"%s\" expected \"rotate\" or \"drop\"\n", game->turn + 1, action);
 		return !game->turn;
 	}
-	disarm_timer();
-
-	// Invert turn and check winner
-	game->turn = !game->turn;
-	int winner = game_winner(game);
-	if (winner != -1) {
-		winner = winner * 2 / game->config->color_count;
-		return winner;
-	}
-	return -1;
 }
 
 int game_turn(game_t *game)
