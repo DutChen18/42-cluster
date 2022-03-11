@@ -336,8 +336,7 @@ int game_turn(game_t *game)
 				fprintf(stderr, "Player %d tried to place a chip on top of another chip\n", game->turn + 1);
 			return check_winner(!game->turn);
 		}
-		if (value < game->turn * game->config->color_count / 2
-			|| value >= (game->turn + 1) * game->config->color_count / 2) {
+		if (value != game->chip_a && value != game->chip_b) {
 			disarm_timer();
 			if (game->config->debug)
 				fprintf(stderr, "Player %d tried to place an invalid chip: %d\n", game->turn + 1, value);
