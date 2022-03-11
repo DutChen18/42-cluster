@@ -28,8 +28,12 @@ static void popen2(const char* path, player_t* player)
 		close(in[STDIN_FILENO]);
 		close(out[STDOUT_FILENO]);
 		player->in = fdopen(out[STDIN_FILENO], "r");
+		if (player->in == NULL)
+			exit(EXIT_FAILURE);
 		setbuf(player->in, NULL);
 		player->out = fdopen(in[STDOUT_FILENO], "w");
+		if (player->out == NULL)
+			exit(EXIT_FAILURE);
 		setbuf(player->out, NULL);
 	}
 }
@@ -112,8 +116,23 @@ int game_start(game_t *game, const char *p1, const char *p2)
 	char action[8];
 
 	if (p1 != NULL) {
-		arm_timer(game->config->timeout);
 		popen2(p1, &game->players[0]);
+	} else {
+		game->players[0].is_bot = false;
+		game->players[0].exe_name = "player 1";
+		col1 = 0xFF0000;
+	}
+
+	if (p2 != NULL) {
+		popen2(p2, &game->players[1]);
+	} else {
+		game->players[1].is_bot = false;
+		game->players[1].exe_name = "player 2";
+		col2 = 0xFF0000;
+	}
+
+	if (p1 != NULL) {
+		arm_timer(game->config->timeout);
 		fprintf(game->players[0].out, "init %d %d %d %f 0\n",
 			game->config->color_count,
 			game->cell_count / game->config->color_count,
@@ -150,15 +169,10 @@ int game_start(game_t *game, const char *p1, const char *p2)
 			return 1;
 		}
 		disarm_timer();
-	} else {
-		game->players[0].is_bot = false;
-		game->players[0].exe_name = "player 1";
-		col1 = 0xFF0000;
 	}
 
 	if (p2 != NULL) {
 		arm_timer(game->config->timeout);
-		popen2(p2, &game->players[1]);
 		fprintf(game->players[1].out, "init %d %d %d %f 1\n",
 			game->config->color_count,
 			game->cell_count / game->config->color_count,
@@ -195,10 +209,6 @@ int game_start(game_t *game, const char *p1, const char *p2)
 			return 0;
 		}
 		disarm_timer();
-	} else {
-		game->players[1].is_bot = false;
-		game->players[1].exe_name = "player 2";
-		col2 = 0xFF0000;
 	}
 
 	if (col1 == 0xFF00FF && col2 == 0xFF00FF)

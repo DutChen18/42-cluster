@@ -187,7 +187,7 @@ void	put_exe_name(game_t *game, visuals_t *visuals)
 
 	int grid_width = ((game->config->grid_size - 1) * 0.75) * visuals->cell_diagonal;
 	x = game->config->window_width / 2 - grid_width;
-	y = game->config->window_height / 2 - visuals->cell_height * (float)(game->config->grid_size - 0.5);
+	y = (int) (game->config->window_height / 2 - visuals->cell_height) * (game->config->grid_size - 0.5);
 	mlx_put_string(visuals->mlx, game->players[0].exe_name, x, y);
 	x = x + 2 * grid_width - strlen(game->players[1].exe_name) * 10;
 	mlx_put_string(visuals->mlx, game->players[1].exe_name, x, y);
