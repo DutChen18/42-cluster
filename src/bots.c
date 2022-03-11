@@ -207,16 +207,29 @@ int game_start(game_t *game, const char *p1, const char *p2)
 	return -1;
 }
 
+static int check_winner(int winner)
+{
+	if (winner != -1)
+		printf("Player %d wins\n", winner + 1);
+	return winner;
+}
+
 int game_preturn(game_t *game)
 {
 	game->chip_a = game_take_random(game);
 	game->chip_b = -1;
-	if (game->chip_a == -1)
-		return !game->turn;
+	if (game->chip_a == -1) {
+		if (game->config->debug)
+			fprintf(stderr, "Player %d is out of chips\n", game->turn + 1);
+		return check_winner(!game->turn);
+	}
 	game->chip_counts[game->chip_a] -= 1;
 	game->chip_b = game_take_random(game);
-	if (game->chip_b == -1)
-		return !game->turn;
+	if (game->chip_b == -1) {
+		if (game->config->debug)
+			fprintf(stderr, "Player %d is out of chips\n", game->turn + 1);
+		return check_winner(!game->turn);
+	}
 	game->chip_counts[game->chip_b] -= 1;
 	return -1;
 }
@@ -231,7 +244,7 @@ int game_postturn_rotate(game_t *game, int value)
 	int winner = game_winner(game);
 	if (winner != -1) {
 		winner = winner * 2 / game->config->color_count;
-		return winner;
+		return check_winner(winner);
 	}
 	return -1;
 }
@@ -251,12 +264,12 @@ int game_postturn_drop(game_t *game, int q, int r, int s, int pos, int value)
 	int winner = game_winner(game);
 	if (winner != -1) {
 		winner = winner * 2 / game->config->color_count;
-		return winner;
+		return check_winner(winner);
 	}
 	return -1;
 }
 
-static int game_turn_internal(game_t *game)
+int game_turn(game_t *game)
 {
 	int q, r, s, value, pos;
 	char action[8];
@@ -269,7 +282,7 @@ static int game_turn_internal(game_t *game)
 		disarm_timer();
 		if (game->config->debug)
 			fprintf(stderr, "Player %d did not give action\n", game->turn + 1);
-		return !game->turn;
+		return check_winner(!game->turn);
 	}
 	
 	if (strcmp(action, "rotate") == 0) {
@@ -278,13 +291,13 @@ static int game_turn_internal(game_t *game)
 			disarm_timer();
 			if (game->config->debug)
 				fprintf(stderr, "Player %d did not give rotate value\n", game->turn + 1);
-			return !game->turn;
+			return check_winner(!game->turn);
 		}
 		if (value < 0 || value >= 6) {
 			disarm_timer();
 			if (game->config->debug)
 				fprintf(stderr, "Player %d sent invalid rotation value: %d\n", game->turn + 1, value);
-			return !game->turn;
+			return check_winner(!game->turn);
 		}
 
 		// Perform rotation
@@ -297,7 +310,7 @@ static int game_turn_internal(game_t *game)
 			disarm_timer();
 			if (game->config->debug)
 				fprintf(stderr, "Player %d did not give drop value\n", game->turn + 1);
-			return !game->turn;
+			return check_winner(!game->turn);
 		}
 		compute_pos(pos, game->config->grid_size, game->gravity, &q, &r, &s);
 		cell_t *cell = game_get(game, q, r, s);
@@ -305,20 +318,20 @@ static int game_turn_internal(game_t *game)
 			disarm_timer();
 			if (game->config->debug)
 				fprintf(stderr, "Player %d tried to place a chip at an invalid location: %d\n", game->turn + 1, pos);
-			return !game->turn;
+			return check_winner(!game->turn);
 		}
 		if (cell->chip.value != -1) {
 			disarm_timer();
 			if (game->config->debug)
 				fprintf(stderr, "Player %d tried to place a chip on top of another chip\n", game->turn + 1);
-			return !game->turn;
+			return check_winner(!game->turn);
 		}
 		if (value < game->turn * game->config->color_count / 2
 			|| value >= (game->turn + 1) * game->config->color_count / 2) {
 			disarm_timer();
 			if (game->config->debug)
 				fprintf(stderr, "Player %d tried to place an invalid chip: %d\n", game->turn + 1, value);
-			return !game->turn;
+			return check_winner(!game->turn);
 		}
 
 		// Perform drop
@@ -330,14 +343,6 @@ static int game_turn_internal(game_t *game)
 		disarm_timer();
 		if (game->config->debug)
 			fprintf(stderr, "Player %d invalid action: \"%s\" expected \"rotate\" or \"drop\"\n", game->turn + 1, action);
-		return !game->turn;
+		return check_winner(!game->turn);
 	}
-}
-
-int game_turn(game_t *game)
-{
-	int winner = game_turn_internal(game);
-	if (winner != -1)
-		printf("Player %d wins\n", winner + 1);
-	return winner;
 }
