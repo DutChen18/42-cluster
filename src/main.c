@@ -410,8 +410,9 @@ int main(int argc, char **argv)
 		mlx_loop(mlx);
 	} else {
 		while (data.winner == -1) {
-			game_preturn(&data.game);
-			data.winner = game_turn(&data.game);
+			data.winner = game_preturn(&data.game);
+			if (data.winner == -1)
+				data.winner = game_turn(&data.game);
 		}
 	}
 	return EXIT_SUCCESS;
