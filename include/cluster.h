@@ -64,16 +64,18 @@ struct grid {
 };
 
 struct config {
-	int		use_mlx;
-	int		grid_size;
-	int		color_count;
-	float	bot_speed;
-	int		win_length;
-	float	timeout;
-	int		window_width;
-	int		window_height;
-	int		debug;
-	int		autoclose;
+	int			use_mlx;
+	int			grid_size;
+	int			color_count;
+	float		bot_speed;
+	int			win_length;
+	float		timeout;
+	int			window_width;
+	int			window_height;
+	int			debug;
+	int			autoclose;
+	unsigned	bg_color;
+	unsigned	bg_gradient_color;
 };
 
 // Structure used for bot implementation

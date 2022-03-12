@@ -80,7 +80,7 @@ bool move_hexagons(visuals_t *visuals, game_t *game)
 	return (move_count > 0);
 }
 
-void set_background(config_t *config, visuals_t *visuals, int color)
+void set_background(config_t *config, visuals_t *visuals)
 {
 	int index;
 	mlx_image_t	*image;
@@ -89,7 +89,12 @@ void set_background(config_t *config, visuals_t *visuals, int color)
 	set_bg_gradients(config, visuals->mlx, visuals->bg_gradients);
 	for (int y = 0; y < config->window_height; y++)
 		for (int x = 0; x < config->window_width; x++)
-			mlx_put_pixel(image, x, y, color);
+		{
+			if (config->bg_color != 0)
+				mlx_put_pixel(image, x, y, config->bg_color);
+			else
+				mlx_put_pixel(image, x, y, 0x333333FF);
+		}
 	index = mlx_image_to_window(visuals->mlx, image, 0, 0);
 	image->instances[index].z = BACKROUND;
 	for (int i = 0; i < 6; i++)
@@ -158,7 +163,7 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	hexagon_border_init(visuals, &back_cell, width, height, 0x222222FF);
 	for (int i = 0; i < config->color_count; i++)
 		hexagon_init(visuals->mlx, &colors[i], width, height, game->colors[i]);
-	
+
 	y = config->window_height / 2 + (int) ((visuals->cell_height - get_border_size(visuals->cell_height) / 2) * (config->grid_size - 0.5)) - height;
 	x = config->window_width / 2 - visuals->cell_diagonal * config->grid_size / 2;
 	mirror_x = config->window_width - x - width;
@@ -170,7 +175,7 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	mirror_x = config->window_width - x - width;
 	one_gui_cell(&visuals->gui[0], x, y, colors, &back_cell, HEXAGON_EVEN);
 	one_gui_cell(&visuals->gui[3], mirror_x, y, colors, &back_cell, HEXAGON_ODD);
-	
+
 	x -= width / 4 * 3 - border_size / 4;
 	x += visuals->grid.height / 16;
 	y -= height / 2 - border_size / 4;
@@ -195,7 +200,7 @@ void	put_exe_name(game_t *game, visuals_t *visuals)
 
 void make_first_frame(visuals_t *visuals, game_t *game, config_t *config)
 {
-	set_background(game->config, visuals, 0x333333FF);
+	set_background(game->config, visuals);
 	grid_init(visuals, game);
 	gui_init(visuals, config, game);
 	mlx_image_to_window(visuals->mlx, visuals->grid.grid, 0, 0);
@@ -205,7 +210,7 @@ void make_first_frame(visuals_t *visuals, game_t *game, config_t *config)
 void	place_wall(game_t *game, int q, int r, int s)
 {
 	cell_t	*wall = game_get(game , q, r, s);
-	
+
 	for (int i = 0; i < 6; i++)
 		if (wall->neighbors[i] != NULL)
 			wall->neighbors[i]->neighbors[(i + 3) % 6] = NULL;

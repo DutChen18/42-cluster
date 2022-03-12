@@ -6,7 +6,7 @@
 void config_read(config_t *config, const char *path)
 {
 	FILE* file = fopen(path, "r");
-	char key[16];
+	char key[18];
 
 	config->use_mlx = -1;
 	config->grid_size = -1;
@@ -18,8 +18,10 @@ void config_read(config_t *config, const char *path)
 	config->window_height = -1;
 	config->debug = -1;
 	config->autoclose = -1;
+	config->bg_color = 0;
+	config->bg_gradient_color = 0;
 
-	while (fscanf(file, "%15s", key) == 1) {
+	while (fscanf(file, "%17s", key) == 1) {
 		if (strcmp(key, "use_mlx") == 0) {
 			fscanf(file, "%d", &config->use_mlx);
 		} else if (strcmp(key, "grid_size") == 0) {
@@ -41,6 +43,10 @@ void config_read(config_t *config, const char *path)
 			fscanf(file, "%d", &config->debug);
 		} else if (strcmp(key, "autoclose") == 0) {
 			fscanf(file, "%d", &config->autoclose);
+		} else if (strcmp(key, "bg_color") == 0) {
+			fscanf(file, "%X", &config->bg_color);
+		} else if (strcmp(key, "bg_gradient_color") == 0) {
+			fscanf(file, "%X", &config->bg_gradient_color);
 		} else if (strcmp(key, "#") == 0) {
 			while (1) {
 				int c = fgetc(file);
