@@ -21,6 +21,7 @@ static void game_init_cells(game_t *game, config_t *config)
 					cell->chip.placed = false;
 					cell->chip.x = cell->x;
 					cell->chip.y = cell->y;
+					cell->is_winning = false;
 					i += 1;
 				}
 			}

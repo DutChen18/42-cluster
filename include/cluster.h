@@ -47,6 +47,7 @@ struct cell {
 	bool	wall;
 	int		q, r, s;
 	float	x, y;
+	bool	is_winning;
 };
 
 // Used to store Hexagon properties
