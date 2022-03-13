@@ -279,6 +279,40 @@ int game_postturn_drop(game_t *game, int q, int r, int s, int pos, int value)
 	return -1;
 }
 
+int handle_fetch(game_t *game)
+{
+	char target[8];
+
+	if (fscanf(game->players[game->turn].in, "%7s", target) != 1) {
+		if (game->config->debug)
+			fprintf(stderr, "Player %d did not give fetch target\n", game->turn + 1);
+		return 0;
+	}
+
+	if (strcmp(target, "cells")) {
+		fprintf(game->players[game->turn].out, "cell_count %d\n", game->cell_count);
+		for (int i = 0; i < game->cell_count; i++) {
+			cell_t *cell = &game->cells[i];
+			fprintf(game->players[game->turn].out, "cell %d %d %d %d\n", cell->q, cell->r, cell->s, cell->chip.value);
+		}
+	} else if (strcmp(target, "gravity")) {
+		fprintf(game->players[game->turn].out, "gravity %d\n", game->gravity);
+	} else if (strcmp(target, "walls")) {
+		int wall_count = 0;
+		for (int i = 0; i < game->cell_count; i++)
+			if (game->cells[i].wall)
+				wall_count += 1;
+		fprintf(game->players[game->turn].out, "wall_count %d\n", wall_count);
+		for (int i = 0; i < game->cell_count; i++) {
+			cell_t *cell = &game->cells[i];
+			if (cell->wall)
+				fprintf(game->players[game->turn].out, "wall %d %d %d\n", cell->q, cell->r, cell->s);
+		}
+	}
+
+	return 1;
+}
+
 int game_turn(game_t *game)
 {
 	int q, r, s, value, pos;
@@ -288,6 +322,7 @@ int game_turn(game_t *game)
 	fprintf(game->players[game->turn].out, "chips %d %d\n", game->chip_a, game->chip_b);
 
 	// Get action from player
+start:
 	if (fscanf(game->players[game->turn].in, "%7s", action) != 1) {
 		disarm_timer();
 		if (game->config->debug)
@@ -347,6 +382,12 @@ int game_turn(game_t *game)
 		int winner = game_postturn_drop(game, q, r, s, pos, value);
 		disarm_timer();
 		return winner;
+	} else if (strcmp(action, "fetch") == 0) {
+		if (!handle_fetch(game)) {
+			disarm_timer();
+			return check_winner(!game->turn);
+		}
+		goto start;
 	} else {
 		// Invalid action
 		disarm_timer();
