@@ -5,20 +5,20 @@ use_mlx 1
 bot_speed 0.001
 
 # side length of the game grid, grid_size >= 4
-grid_size 10
+grid_size 9
 
 # number of colors per player, will be set to grid_size if color_count > grid_size
-color_count 2
+color_count 3
 
 # colors in a row required to win
-win_length 3
+win_length 4
 
 # time bots have to respond in seconds
 timeout 1.0
 
 # window size, at least 500x500
-window_width 1080
-window_height 1080
+window_width 1000
+window_height 1000
 
 # debug mode
 debug 1
@@ -31,14 +31,14 @@ bg_color 333333
 bg_gradient_color 990099
 
 # wall placement (set chance to 0.0 to disable walls)
-wall_chance 0.1
+wall_chance 0
 wall_seed 12345
 
 # disallow drawing a single chip from an otherwise empty bag
 chen_edition 0
 
-# cell colors
+# cell colors  (basic colors bg:333333;border:222222)
 cell_bg_color 333333
 cell_border_color 222222
 win_bg_color FFFFFF
-win_border_color 222222
+win_border_color FFFFFF

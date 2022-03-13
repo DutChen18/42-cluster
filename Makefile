@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wextra -std=c17 -pedantic -fsanitize=address -Og -g
+CFLAGS = -Wall -Wextra -std=c17 -pedantic #-fsanitize=address -Og -g
 
 botfile = test.c
 srcdir = src

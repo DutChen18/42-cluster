@@ -148,7 +148,7 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 
 	hexagon_t	back_cell;
 	hexagon_t	*colors = malloc(sizeof(*colors) * config->color_count);
-	hexagon_border_init(visuals, &back_cell, width, height, config->);
+	hexagon_border_init(visuals, &back_cell, width, height, config->cell_bg_color, config->cell_border_color);
 	for (int i = 0; i < config->color_count; i++)
 		hexagon_init(visuals->mlx, &colors[i], width, height, game->colors[i]);
 
@@ -156,12 +156,12 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	x = config->window_width / 2 - visuals->cell_diagonal * config->grid_size / 2;
 	mirror_x = config->window_width - x - width;
 	one_gui_cell(&visuals->gui[1], x, y, colors, &back_cell, HEXAGON);
-	one_gui_cell(&visuals->gui[2], mirror_x, y, colors, &back_cell, HEXAGON_EVEN);
+	one_gui_cell(&visuals->gui[2], mirror_x, y, colors, &back_cell, HEXAGON);
 
 	x -= width / 4 * 3 - border_size / 4;
 	y -= height / 2 - border_size / 4;
 	mirror_x = config->window_width - x - width;
-	one_gui_cell(&visuals->gui[0], x, y, colors, &back_cell, HEXAGON_EVEN);
+	one_gui_cell(&visuals->gui[0], x, y, colors, &back_cell, HEXAGON);
 	one_gui_cell(&visuals->gui[3], mirror_x, y, colors, &back_cell, HEXAGON);
 
 	int grid_width = ((game->config->grid_size - 1) * 0.75 + 0.25) * visuals->cell_diagonal;
@@ -208,6 +208,8 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 {
 	cluster_t	*data = (cluster_t*) param;
 
+	printf("-=-=- Process Movement -=-=-\n");
+	// system("leaks cluster");
 	if (keydata.key == MLX_KEY_ESCAPE)
 		exit(0);
 	if (data->needs_move && !data->game.players[data->game.turn].is_bot)
@@ -268,12 +270,10 @@ void	set_winning_line(visuals_t *visuals, game_t *game)
 	hexagon_t winning_cell;
 
 	printf("starting printing line\n");
-	hexagon_border_init(visuals, &winning_cell, visuals->cell_diagonal, visuals->cell_height, 0xFFFFFFFF);
+	hexagon_border_init(visuals, &winning_cell, visuals->cell_diagonal, visuals->cell_height, game->config->win_bg_color, game->config->win_border_color);
 	for (int i = 0; i < game->cell_count; i++)
 		if (game->cells[i].is_winning)
-		{
 			place_border(game->config, visuals, &game->cells[i], &winning_cell, GRID_LINE);
-		}
 }
 
 static void	frame(void *param)
@@ -410,17 +410,6 @@ int main(int argc, char **argv)
 		data.needs_move = false;
 		data.left_state = false;
 		data.right_state = false;
-		// place_wall(&data.game, 2, 1, -3);
-		// place_wall(&data.game, 2, 2, -4);
-		// place_wall(&data.game, 3, -3, 0);
-		// place_wall(&data.game, -3, 5, -2);
-		// place_wall(&data.game, -4, -2, 6);
-		// place_wall(&data.game, 0, -1, 1);
-		// place_wall(&data.game, -7, 0, 7);
-		// place_wall(&data.game, -1, 1, 0);
-		// place_wall(&data.game, 7, -7, 0);
-		// place_wall(&data.game, 1, 0, -1);
-		// place_wall(&data.game, 7, -3, -4);
 		make_first_frame(&data.visuals, &data.game, &config);
 		mlx_key_hook(mlx, process_movement, &data);
 		mlx_loop_hook(mlx, frame, &data);

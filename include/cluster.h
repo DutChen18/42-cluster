@@ -53,7 +53,8 @@ struct cell {
 struct hexagon {
 	int			height;
 	int			width;
-	int			color;
+	int			background_color;
+	int			border_color;
 	mlx_image_t	*img;
 };
 

@@ -41,8 +41,8 @@ void	hexagon_border_init(visuals_t *visuals, hexagon_t *obj, int width, int heig
 	{
 		for (int x = obj->width / 4; x < obj->width / 4 * 3; x++)
 		{
-			mlx_put_pixel(obj->img, x, y, obj->color);
-			mlx_put_pixel(obj->img, x, y + obj->height - border_size / 2, obj->color);
+			mlx_put_pixel(obj->img, x, y, obj->border_color);
+			mlx_put_pixel(obj->img, x, y + obj->height - border_size / 2, obj->border_color);
 		}
 	}
 }
@@ -65,7 +65,7 @@ void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
 	obj->width = width / 5 * 4;
 	obj->height = height / 5 * 4;
 	obj->img = mlx_new_image(mlx, obj->width, obj->height);
-	obj->color = color;
+	obj->background_color = color;
 	for (int x = 0; x < obj->width; x++)
 		for (int y = 0; y < obj->height; y++)
 		{
@@ -114,7 +114,7 @@ void place_color_gui(config_t *config, visuals_t *visuals, cell_t *cell, hexagon
 
 void grid_init(visuals_t *visuals, game_t *game)
 {
-	hexagon_border_init(visuals, &visuals->grid.one_cell, visuals->cell_diagonal, visuals->cell_height, 0x222222FF, 0x222222FF);
+	hexagon_border_init(visuals, &visuals->grid.one_cell, visuals->cell_diagonal, visuals->cell_height, game->config->cell_bg_color, game->config->cell_border_color);
 	visuals->grid.width = game->config->window_width;
 	visuals->grid.height = game->config->window_height;
 	visuals->grid.grid = mlx_new_image(visuals->mlx, visuals->grid.width, visuals->grid.height);

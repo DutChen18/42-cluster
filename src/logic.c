@@ -1,4 +1,5 @@
 #include "cluster.h"
+#include <stdlib.h>
 
 cell_t *game_update(game_t *game, cell_t *cell)
 {
@@ -19,9 +20,12 @@ cell_t *game_update(game_t *game, cell_t *cell)
 
 void game_rotate(game_t *game, int gravity)
 {
+	// printf("-=-=- Game rotate -=-=-\n");
+	// system("leaks cluster");
 	game->gravity = gravity;
 	for (int i = 0; i < game->cell_count; i++)
 		game_update(game, &game->cells[i]);
+	// system("leaks cluster");
 }
 
 void game_drop(game_t *game, int q, int r, int s, int value)

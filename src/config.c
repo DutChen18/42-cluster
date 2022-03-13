@@ -97,6 +97,11 @@ void config_read(config_t *config, const char *path)
 		fprintf(stderr, "invalid config file\n");
 		exit(EXIT_FAILURE);
 	}
+
+	config->cell_bg_color = config->cell_bg_color << 8 | 0xff;
+	config->cell_border_color = config->cell_border_color << 8 | 0xff;
+	config->win_bg_color = config->win_bg_color << 8 | 0xff;
+	config->win_border_color = config->win_border_color << 8 | 0xff;
 }
 
 		// || config->grid_size < 4
