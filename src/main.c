@@ -273,6 +273,16 @@ static cell_t *get_cell_pos(cluster_t *data, int *pos)
 	return cell;
 }
 
+void	set_winning_line(visuals_t *visuals, game_t *game)
+{
+	hexagon_t winning_cell;
+
+	hexagon_border_init(visuals, &winning_cell, visuals->cell_diagonal, visuals->cell_height, 0xFFFFFFFF);
+	for (int i = 0; i < game->cell_count; i++)
+		if (game->cells[i].is_winning)
+			place_border(game->config, visuals, &game->cells[i], &winning_cell);
+}
+
 static void	frame(void *param)
 {
 	cluster_t	*data = (cluster_t*)param;
@@ -357,10 +367,7 @@ static void	frame(void *param)
 		data->visuals.bg_gradients[i]->enabled = false;
 	data->visuals.bg_gradients[data->game.gravity]->enabled = true;
 
-	if (data->visuals.winner_str != NULL)
-		mlx_delete_image(data->visuals.mlx, data->visuals.winner_str);
-	data->visuals.winner_str = NULL;
-	if (data->winner != -1) {
+	if (data->winner != -1 && data->visuals.winner_str == NULL) {
 		char winner_text[1024];
 		sprintf(winner_text, "%s wins!", data->game.players[data->winner].exe_name);
 		int winner_x = data->game.config->window_width / 2 - strlen(winner_text) * 5;
@@ -368,6 +375,7 @@ static void	frame(void *param)
 			data->visuals.winner_str = mlx_put_string(data->visuals.mlx, winner_text, winner_x, 10);
 		if (data->winner == 1)
 			data->visuals.winner_str = mlx_put_string(data->visuals.mlx, winner_text, winner_x, 10);
+		set_winning_line(&data->visuals, &data->game);
 	}
 }
 

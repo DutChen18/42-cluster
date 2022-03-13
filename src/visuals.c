@@ -53,10 +53,7 @@ void place_border(config_t *config, visuals_t *visuals, cell_t *cell, hexagon_t 
 	int x = (int) (visuals->cell_height - border_size / 2) * cell->x + (int) (config->window_width / 2 - texture->width / 2);
 	int y = (int) (visuals->cell_height - border_size / 2) * cell->y + (int) (config->window_height / 2 - texture->height / 2);
 	index = mlx_image_to_window(visuals->mlx, texture->img, x, y);
-	if (cell->q % 2 == 0)
-		texture->img->instances[index].z = GRID_EVEN;
-	else
-		texture->img->instances[index].z = GRID_ODD;
+	texture->img->instances[index].z = GRID_EVEN;
 }
 
 void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color)
