@@ -313,6 +313,10 @@ static int handle_fetch(game_t *game)
 			if (cell->wall)
 				fprintf(game->players[game->turn].out, "wall %d %d %d\n", cell->q, cell->r, cell->s);
 		}
+	} else {
+		if (game->config->debug)
+			fprintf(stderr, "Player %d invalid fetch target: \"%s\" expected \"cells\" or \"gravity\" or \"walls\"\n", game->turn + 1, target);
+		return 0;
 	}
 
 	return 1;
@@ -409,7 +413,7 @@ start:
 		// Invalid action
 		disarm_timer();
 		if (game->config->debug)
-			fprintf(stderr, "Player %d invalid action: \"%s\" expected \"rotate\" or \"drop\"\n", game->turn + 1, action);
+			fprintf(stderr, "Player %d invalid action: \"%s\" expected \"rotate\" or \"drop\" or \"fetch\"\n", game->turn + 1, action);
 		return check_winner(!game->turn);
 	}
 }
