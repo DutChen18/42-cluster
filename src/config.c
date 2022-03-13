@@ -6,7 +6,7 @@
 void config_read(config_t *config, const char *path)
 {
 	FILE* file = fopen(path, "r");
-	char key[18];
+	char key[32];
 
 	config->use_mlx = -1;
 	config->grid_size = -1;
@@ -22,8 +22,13 @@ void config_read(config_t *config, const char *path)
 	config->bg_gradient_color = 0;
 	config->wall_chance = -1;
 	config->wall_seed = -1;
+	config->chen_edition = -1;
+	config->cell_bg_color = 0;
+	config->cell_border_color = 0;
+	config->win_bg_color = 0;
+	config->win_border_color = 0;
 
-	while (fscanf(file, "%17s", key) == 1) {
+	while (fscanf(file, "%31s", key) == 1) {
 		if (strcmp(key, "use_mlx") == 0) {
 			fscanf(file, "%d", &config->use_mlx);
 		} else if (strcmp(key, "grid_size") == 0) {
@@ -53,6 +58,16 @@ void config_read(config_t *config, const char *path)
 			fscanf(file, "%f", &config->wall_chance);
 		} else if (strcmp(key, "wall_seed") == 0) {
 			fscanf(file, "%d", &config->wall_seed);
+		} else if (strcmp(key, "chen_edition") == 0) {
+			fscanf(file, "%d", &config->chen_edition);
+		} else if (strcmp(key, "cell_bg_color") == 0) {
+			fscanf(file, "%X", &config->cell_bg_color);
+		} else if (strcmp(key, "cell_border_color") == 0) {
+			fscanf(file, "%X", &config->cell_border_color);
+		} else if (strcmp(key, "win_bg_color") == 0) {
+			fscanf(file, "%X", &config->win_bg_color);
+		} else if (strcmp(key, "win_border_color") == 0) {
+			fscanf(file, "%X", &config->win_border_color);
 		} else if (strcmp(key, "#") == 0) {
 			while (1) {
 				int c = fgetc(file);
@@ -77,7 +92,8 @@ void config_read(config_t *config, const char *path)
 		|| (config->debug != 0 && config->debug != 1)
 		|| (config->autoclose != 0 && config->autoclose != 1)
 		|| config->wall_chance < 0
-		|| config->wall_seed < 0) {
+		|| config->wall_seed < 0
+		|| (config->chen_edition != 0 && config->chen_edition != 1)) {
 		fprintf(stderr, "invalid config file\n");
 		exit(EXIT_FAILURE);
 	}
