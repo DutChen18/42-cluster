@@ -6,7 +6,7 @@
 /*   By: W2Wizard <w2.wizzard@gmail.com>              +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/01/21 15:34:45 by W2Wizard      #+#    #+#                 */
-/*   Updated: 2022/03/11 15:41:12 by lde-la-h      ########   odam.nl         */
+/*   Updated: 2022/03/13 15:47:17 by csteenvo      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,6 +200,7 @@ void mlx_delete_image(mlx_t* mlx, mlx_image_t* image)
 		glDeleteTextures(1, &((mlx_image_ctx_t*)image->context)->texture);
 		mlx_freen(4, image->pixels, image->instances, image->context, imglst, image);
 	}
+	free(image);
 }
 
 bool mlx_resize_image(mlx_image_t* img, uint32_t nwidth, uint32_t nheight)
