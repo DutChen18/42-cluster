@@ -5,7 +5,7 @@ use_mlx 1
 bot_speed 0.001
 
 # side length of the game grid, grid_size >= 4
-grid_size 9
+grid_size 3
 
 # number of colors per player, will be set to grid_size if color_count > grid_size
 color_count 3
@@ -17,7 +17,7 @@ win_length 4
 timeout 1.0
 
 # window size, at least 500x500
-window_width 1080
+window_width 2160
 window_height 1080
 
 # debug mode

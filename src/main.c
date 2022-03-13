@@ -142,11 +142,8 @@ void	one_gui_cell(gui_t *obj, int x, int y, hexagon_t *colors, hexagon_t *back_c
 	obj->layer = layer;
 }
 
-void	init_bag_count(visuals_t *visuals, hexagon_t *background, bag_count_t *bag, int x, int y)
+void	init_bag_count(bag_count_t *bag, int x, int y)
 {
-	(void) visuals;
-	(void) background;
-	// bag->background = mlx_image_to_window(visuals->mlx, background->img, x, y);
 	bag->text = NULL;
 	bag->x = x;
 	bag->y = y;
@@ -177,9 +174,12 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	one_gui_cell(&visuals->gui[0], x, y, colors, &back_cell, HEXAGON_EVEN);
 	one_gui_cell(&visuals->gui[3], mirror_x, y, colors, &back_cell, HEXAGON_ODD);
 
-	init_bag_count(visuals, &back_cell, &visuals->bag_counts[0], 18, config->window_height - 36);
-	init_bag_count(visuals, &back_cell, &visuals->bag_counts[1], config->window_width - 40 - 18, config->window_height - 36);
-
+	int grid_width = ((game->config->grid_size - 1) * 0.75 + 0.25) * visuals->cell_diagonal;
+	x = game->config->window_width / 2 - grid_width;
+	y = (int) game->config->window_height / 2 + (visuals->cell_height * (game->config->grid_size - 0.5)) - 40;
+	init_bag_count(&visuals->bag_counts[0], x, y);
+	x = x + 2 * grid_width - 4 * 10;
+	init_bag_count(&visuals->bag_counts[1], x, y);
 	place_gui_cells(visuals, config->color_count);
 }
 
@@ -189,7 +189,7 @@ void	put_exe_name(game_t *game, visuals_t *visuals)
 
 	int grid_width = ((game->config->grid_size - 1) * 0.75) * visuals->cell_diagonal;
 	x = game->config->window_width / 2 - grid_width;
-	y = (int) (game->config->window_height / 2 - visuals->cell_height) * (game->config->grid_size - 0.5);
+	y = (int) game->config->window_height / 2 - (visuals->cell_height * (game->config->grid_size - 0.5));
 	mlx_put_string(visuals->mlx, game->players[0].exe_name, x, y);
 	x = x + 2 * grid_width - strlen(game->players[1].exe_name) * 10;
 	mlx_put_string(visuals->mlx, game->players[1].exe_name, x, y);
