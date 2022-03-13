@@ -81,7 +81,7 @@ void set_background(config_t *config, visuals_t *visuals)
 		for (int x = 0; x < config->window_width; x++)
 		{
 			if (config->bg_color != 0)
-				mlx_put_pixel(image, x, y, config->bg_color);
+				mlx_put_pixel(image, x, y, config->bg_color << 8 | 0xFF);
 			else
 				mlx_put_pixel(image, x, y, 0x333333FF);
 		}
@@ -101,8 +101,10 @@ void	move_gui_cells(gui_t *obj, int color_count, int chip_a, int chip_b)
 			obj[i].colors[j].img->instances[i].z = DISMISS;
 	int player = chip_a < (color_count / 2) ? 0 : 2;
 
-	obj[player].colors[chip_a].img->instances[player].z = HEXAGON;
-	obj[player + 1].colors[chip_b].img->instances[player + 1].z = HEXAGON;
+	if (chip_a != -1)
+		obj[player].colors[chip_a].img->instances[player].z = HEXAGON;
+	if (chip_b != -1)
+		obj[player + 1].colors[chip_b].img->instances[player + 1].z = HEXAGON;
 }
 
 void	place_gui_cells(visuals_t *visuals, int color_count)
@@ -227,7 +229,7 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 			direction = 4;
 		else if (keydata.key == MLX_KEY_Q && keydata.action == 1)
 			direction = 5;
-		if (direction != -1)
+		if (direction != -1 && data->game.chip_a != -1 && data->game.chip_b != -1)
 		{
 			data->winner = game_postturn_rotate(&data->game, direction);
 			data->needs_move = false;
@@ -302,7 +304,7 @@ static void	frame(void *param)
 		if (!data->left_state && data->needs_move && !data->game.players[data->game.turn].is_bot) {
 			int pos;
 			cell_t *cell = get_cell_pos(data, &pos);
-			if (cell != NULL && cell->chip.value == -1) {
+			if (cell != NULL && cell->chip.value == -1 && data->game.chip_a != -1) {
 				data->winner = game_postturn_drop(&data->game, cell->q, cell->r, cell->s, pos, data->game.chip_a);
 				data->needs_move = false;
 				data->time = 0;
@@ -317,7 +319,7 @@ static void	frame(void *param)
 		if (!data->right_state && data->needs_move && !data->game.players[data->game.turn].is_bot) {
 			int pos;
 			cell_t *cell = get_cell_pos(data, &pos);
-			if (cell != NULL && cell->chip.value == -1) {
+			if (cell != NULL && cell->chip.value == -1 && data->game.chip_b != -1) {
 				data->winner = game_postturn_drop(&data->game, cell->q, cell->r, cell->s, pos, data->game.chip_b);
 				data->needs_move = false;
 				data->time = 0;
@@ -348,8 +350,7 @@ static void	frame(void *param)
 				bag->text = mlx_put_string(data->visuals.mlx, buf, bag->x, bag->y);
 			}
 			data->winner = game_preturn(&data->game);
-			if (data->game.chip_a >= 0 && data->game.chip_b >= 0)
-				move_gui_cells(data->visuals.gui, data->game.config->color_count, data->game.chip_a, data->game.chip_b);
+			move_gui_cells(data->visuals.gui, data->game.config->color_count, data->game.chip_a, data->game.chip_b);
 			if (data->winner == -1)
 				data->needs_move = true;
 			break;
