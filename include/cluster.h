@@ -13,10 +13,9 @@
 # define DISMISS -1
 # define BACKROUND 0
 # define GRADIENTS 1
-# define GRID_EVEN 20
-# define GRID_ODD 30
-# define HEXAGON_EVEN 40
-# define HEXAGON_ODD 50
+# define GRID 20
+# define GRID_LINE 30
+# define HEXAGON 40
 
 // Setting all structures names from "*" to "*_t".
 typedef struct chip chip_t;
@@ -54,7 +53,8 @@ struct cell {
 struct hexagon {
 	int			height;
 	int			width;
-	int			color;
+	int			background_color;
+	int			border_color;
 	mlx_image_t	*img;
 };
 
@@ -64,6 +64,8 @@ struct grid {
 	int			width;
 	mlx_image_t	*grid;
 	hexagon_t	one_cell;
+	int			background_color;
+	int			border_color;
 };
 
 struct config {
@@ -152,8 +154,8 @@ struct cluster {
 };
 
 int		get_border_size(int height);
-void	hexagon_border_init(visuals_t *visuals, hexagon_t *obj, int width, int height, int color);
-void	place_border(config_t *config, visuals_t *visuals, cell_t *cell, hexagon_t *texture);
+void	hexagon_border_init(visuals_t *visuals, hexagon_t *obj, int width, int height, int background_color, int border_color);
+void	place_border(config_t *config, visuals_t *visuals, cell_t *cell, hexagon_t *texture, int color);
 void	hexagon_init(mlx_t *mlx, hexagon_t *obj, int width, int height, int color);
 void	place_hexagon(config_t *config, visuals_t *visuals, cell_t *cell);
 
