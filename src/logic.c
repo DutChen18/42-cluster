@@ -58,7 +58,7 @@ int game_winner(game_t *game)
 				best_count = 1;
 				best_index = i;
 				best_direction = dir;
-			} else if (length == best_length)
+			} else if (length == best_length && best_value != value)
 				best_count += 1;
 		}
 	}
