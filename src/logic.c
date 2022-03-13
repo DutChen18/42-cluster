@@ -59,7 +59,7 @@ int game_winner(game_t *game)
 				best_count = 1;
 				best_index = i;
 				best_direction = dir;
-			} else if (length == best_length && best_value != value)
+			} else if (length == best_length && best_value * 2 / game->config->color_count != value * 2 / game->config->color_count)
 				best_count += 1;
 		}
 	}
