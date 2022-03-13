@@ -80,6 +80,13 @@ struct config {
 	int			autoclose;
 	unsigned	bg_color;
 	unsigned	bg_gradient_color;
+	float		wall_chance;
+	int			wall_seed;
+	int			chen_edition;
+	unsigned	cell_bg_color;
+	unsigned	cell_border_color;
+	unsigned	win_bg_color;
+	unsigned	win_border_color;
 };
 
 // Structure used for bot implementation
