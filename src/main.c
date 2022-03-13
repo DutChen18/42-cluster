@@ -210,8 +210,6 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 {
 	cluster_t	*data = (cluster_t*) param;
 
-	printf("-=-=- Process Movement -=-=-\n");
-	// system("leaks cluster");
 	if (keydata.key == MLX_KEY_ESCAPE)
 		exit(0);
 	if (data->needs_move && !data->game.players[data->game.turn].is_bot)
@@ -236,6 +234,7 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 			data->time = 0;
 		}
 	}
+	system("leaks cluster");
 }
 
 static cell_t *get_cell_pos(cluster_t *data, int *pos)
