@@ -97,7 +97,7 @@ int main(void)
 	}
 	while (1) {
 		scanf(" chips %d %d", &a, &b);
-		if (next(2) == 0 && b != -1) {
+		if (next(3) == 0 && b != -1) {
 			value = next(5);
 			printf("rotate %d\n", value >= read_gravity() ? value + 1 : value);
 		} else {
