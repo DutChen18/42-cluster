@@ -91,7 +91,7 @@ void set_background(config_t *config, visuals_t *visuals)
 		for (int x = 0; x < config->window_width; x++)
 		{
 			if (config->bg_color != 0)
-				mlx_put_pixel(image, x, y, config->bg_color);
+				mlx_put_pixel(image, x, y, config->bg_color << 8 | 0xFF);
 			else
 				mlx_put_pixel(image, x, y, 0x333333FF);
 		}
