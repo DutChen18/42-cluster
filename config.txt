@@ -2,16 +2,16 @@
 use_mlx 1
 
 # bot speed, lower = faster
-bot_speed 0.05
+bot_speed 0.001
 
 # side length of the game grid, grid_size >= 4
-grid_size 6
+grid_size 40
 
 # number of colors per player, will be set to grid_size if color_count > grid_size
 color_count 2
 
 # colors in a row required to win
-win_length 4
+win_length 10
 
 # time bots have to respond in seconds
 timeout 1.0
@@ -22,3 +22,10 @@ window_height 1080
 
 # debug mode
 debug 1
+
+# automatically exit the program when the game is over
+autoclose 0
+
+# background color and background gradient color in Uppercase hexadecimal, 0 for default colors
+bg_color 333333
+bg_gradient_color 990099

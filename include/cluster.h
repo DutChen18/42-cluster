@@ -1,10 +1,12 @@
 #ifndef CLUSTER_H
 #define CLUSTER_H
+#define _POSIX_C_SOURCE 1
 
 // Included libraries
 #include <stddef.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <sys/types.h>
 #include "MLX42/MLX42.h"
 
 //instance levels
@@ -64,15 +66,18 @@ struct grid {
 };
 
 struct config {
-	int		use_mlx;
-	int		grid_size;
-	int		color_count;
-	float	bot_speed;
-	int		win_length;
-	float	timeout;
-	int		window_width;
-	int		window_height;
-	int		debug;
+	int			use_mlx;
+	int			grid_size;
+	int			color_count;
+	float		bot_speed;
+	int			win_length;
+	float		timeout;
+	int			window_width;
+	int			window_height;
+	int			debug;
+	int			autoclose;
+	unsigned	bg_color;
+	unsigned	bg_gradient_color;
 };
 
 // Structure used for bot implementation
