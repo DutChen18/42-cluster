@@ -60,7 +60,6 @@ void place_hexagon(config_t *config, visuals_t *visuals, cell_t *cell)
 		cell->chip.x += dir_x;
 		cell->chip.y += dir_y;
 	}
-	system("leaks cluster");
 }
 
 bool move_hexagons(visuals_t *visuals, game_t *game)

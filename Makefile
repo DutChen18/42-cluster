@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-CFLAGS = -Wall -Wextra -std=c17 -pedantic #-fsanitize=leak -Og -g
-=======
 CFLAGS = -Wall -Wextra -std=c17 -pedantic -fsanitize=address -Og -g
->>>>>>> eb7520aa4697e8a1de33d49706f9b90308c66758
 
 botfile = test.c
 srcdir = src
