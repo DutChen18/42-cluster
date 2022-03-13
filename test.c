@@ -78,7 +78,7 @@ static int read_emptiness(int q, int r, int s)
 
 int main(void)
 {
-	int color_count, chip_count, grid_size, id;
+	int color_count, chip_count, grid_size, win_length, id;
 	int pos, value;
 	char action[256];
 	float timeout;
@@ -88,7 +88,7 @@ int main(void)
 	setbuf(stdout, NULL);
 	setbuf(stdin, NULL);
 	setbuf(stderr, NULL);
-	scanf(" init %d %d %d %f %d", &color_count, &chip_count, &grid_size, &timeout, &id);
+	scanf(" init %d %d %d %d %f %d", &color_count, &chip_count, &grid_size, &win_length, &timeout, &id);
 	srand(mix(clock(), time(NULL), getpid()));
 	c = next(5);
 	printf("color %d\n", c >= 2 ? c + 1 : c);

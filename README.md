@@ -30,10 +30,11 @@ ruleset from The Deckhands:
 
 # commands
 
-	init %d %d %d %f %d
+	init %d %d %d %d %f %d
 		%d = total number of colors [1] [6]
 		%d = chips per color
 		%d = grid size
+		%d = minimum chips in a row required to win
 		%f = timeout in seconds
 		%d = player id [2]
 
