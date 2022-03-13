@@ -38,10 +38,7 @@ void place_hexagon(config_t *config, visuals_t *visuals, cell_t *cell)
 		x = (int) (visuals->cell_height - border_size / 2) * (cell->chip.x) + (int) (config->window_width / 2 - hex->width / 2);
 		y = (int) (visuals->cell_height - border_size / 2) * (cell->chip.y) + (int) (config->window_height / 2 - hex->height / 2);
 		cell->chip.tile_index = mlx_image_to_window(visuals->mlx, hex->img, x, y);
-		if (cell->q % 2 == 0)
-			hex->img->instances[cell->chip.tile_index].z = HEXAGON_EVEN;
-		else
-			hex->img->instances[cell->chip.tile_index].z = HEXAGON_ODD;
+		hex->img->instances[cell->chip.tile_index].z = HEXAGON;
 		cell->chip.placed = true;
 	}
 	else
@@ -50,13 +47,6 @@ void place_hexagon(config_t *config, visuals_t *visuals, cell_t *cell)
 		y = (int) (visuals->cell_height - border_size / 2) * (cell->chip.y + dir_y) + (int) (config->window_height / 2 - hex->height / 2);
 		hex->img->instances[cell->chip.tile_index].x = x;
 		hex->img->instances[cell->chip.tile_index].y = y;
-		if (dir_x != 0)
-		{
-			if (hex->img->instances[cell->chip.tile_index].z == HEXAGON_EVEN)
-				hex->img->instances[cell->chip.tile_index].z = HEXAGON_ODD;
-			else
-				hex->img->instances[cell->chip.tile_index].z = HEXAGON_EVEN;
-		}
 		cell->chip.x += dir_x;
 		cell->chip.y += dir_y;
 	}
@@ -111,8 +101,8 @@ void	move_gui_cells(gui_t *obj, int color_count, int chip_a, int chip_b)
 			obj[i].colors[j].img->instances[i].z = DISMISS;
 	int player = chip_a < (color_count / 2) ? 0 : 2;
 
-	obj[player].colors[chip_a].img->instances[player].z = HEXAGON_EVEN;
-	obj[player + 1].colors[chip_b].img->instances[player + 1].z = HEXAGON_ODD;
+	obj[player].colors[chip_a].img->instances[player].z = HEXAGON;
+	obj[player + 1].colors[chip_b].img->instances[player + 1].z = HEXAGON;
 }
 
 void	place_gui_cells(visuals_t *visuals, int color_count)
@@ -122,9 +112,9 @@ void	place_gui_cells(visuals_t *visuals, int color_count)
 	{
 		index = mlx_image_to_window(visuals->mlx, visuals->gui[i].back_cell->img, visuals->gui[i].x, visuals->gui[i].y);
 		if (i % 2 == 0)
-			visuals->gui[i].back_cell->img->instances[index].z = GRID_EVEN;
+			visuals->gui[i].back_cell->img->instances[index].z = GRID;
 		else
-			visuals->gui[i].back_cell->img->instances[index].z = GRID_ODD;
+			visuals->gui[i].back_cell->img->instances[index].z = GRID;
 		for (int j = 0; j < color_count; j++)
 		{
 			index = mlx_image_to_window(visuals->mlx, visuals->gui[i].colors[j].img, visuals->gui[i].x + visuals->gui[i].back_cell->width /8, visuals->gui[i].y + visuals->gui[i].back_cell->height / 8);
@@ -158,21 +148,21 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 
 	hexagon_t	back_cell;
 	hexagon_t	*colors = malloc(sizeof(*colors) * config->color_count);
-	hexagon_border_init(visuals, &back_cell, width, height, 0x222222FF);
+	hexagon_border_init(visuals, &back_cell, width, height, config->);
 	for (int i = 0; i < config->color_count; i++)
 		hexagon_init(visuals->mlx, &colors[i], width, height, game->colors[i]);
 
 	y = config->window_height / 2 + (int) ((int) (visuals->cell_height - get_border_size(visuals->cell_height) / 2) * (config->grid_size - 0.5)) - height;
 	x = config->window_width / 2 - visuals->cell_diagonal * config->grid_size / 2;
 	mirror_x = config->window_width - x - width;
-	one_gui_cell(&visuals->gui[1], x, y, colors, &back_cell, HEXAGON_ODD);
+	one_gui_cell(&visuals->gui[1], x, y, colors, &back_cell, HEXAGON);
 	one_gui_cell(&visuals->gui[2], mirror_x, y, colors, &back_cell, HEXAGON_EVEN);
 
 	x -= width / 4 * 3 - border_size / 4;
 	y -= height / 2 - border_size / 4;
 	mirror_x = config->window_width - x - width;
 	one_gui_cell(&visuals->gui[0], x, y, colors, &back_cell, HEXAGON_EVEN);
-	one_gui_cell(&visuals->gui[3], mirror_x, y, colors, &back_cell, HEXAGON_ODD);
+	one_gui_cell(&visuals->gui[3], mirror_x, y, colors, &back_cell, HEXAGON);
 
 	int grid_width = ((game->config->grid_size - 1) * 0.75 + 0.25) * visuals->cell_diagonal;
 	x = game->config->window_width / 2 - grid_width;
@@ -277,10 +267,13 @@ void	set_winning_line(visuals_t *visuals, game_t *game)
 {
 	hexagon_t winning_cell;
 
+	printf("starting printing line\n");
 	hexagon_border_init(visuals, &winning_cell, visuals->cell_diagonal, visuals->cell_height, 0xFFFFFFFF);
 	for (int i = 0; i < game->cell_count; i++)
 		if (game->cells[i].is_winning)
-			place_border(game->config, visuals, &game->cells[i], &winning_cell);
+		{
+			place_border(game->config, visuals, &game->cells[i], &winning_cell, GRID_LINE);
+		}
 }
 
 static void	frame(void *param)
