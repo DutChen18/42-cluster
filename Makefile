@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wextra -std=c17 -pedantic #-fsanitize=address -Og -g
+CFLAGS = -Wall -Wextra -std=c17 -pedantic #-fsanitize=leak -Og -g
 
 botfile = test.c
 srcdir = src
@@ -10,6 +10,7 @@ src = $(wildcard $(srcdir)/*.c)
 obj = $(patsubst $(srcdir)/%.c,$(builddir)/%.o,$(src))
 dep = $(patsubst $(srcdir)/%.c,$(builddir)/%.d,$(src))
 inc = -I include -I mlx/include
+CC = gcc
 
 all: $(bin)
 
