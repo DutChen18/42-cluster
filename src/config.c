@@ -61,6 +61,7 @@ void config_read(config_t *config, const char *path)
 
 	if ((config->use_mlx != 0 && config->use_mlx != 1)
 		|| config->bot_speed < 0
+		|| config->color_count < 4
 		|| config->color_count < 2
 		|| config->color_count % 2 != 0
 		|| config->win_length < 2

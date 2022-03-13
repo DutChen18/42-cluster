@@ -10,6 +10,7 @@ src = $(wildcard $(srcdir)/*.c)
 obj = $(patsubst $(srcdir)/%.c,$(builddir)/%.o,$(src))
 dep = $(patsubst $(srcdir)/%.c,$(builddir)/%.d,$(src))
 inc = -I include -I mlx/include
+CC = gcc
 
 all: $(bin)
 
