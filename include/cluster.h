@@ -79,6 +79,8 @@ struct config {
 	int			autoclose;
 	unsigned	bg_color;
 	unsigned	bg_gradient_color;
+	float		wall_chance;
+	int			wall_seed;
 };
 
 // Structure used for bot implementation

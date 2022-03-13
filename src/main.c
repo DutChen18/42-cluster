@@ -176,7 +176,7 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 
 	int grid_width = ((game->config->grid_size - 1) * 0.75 + 0.25) * visuals->cell_diagonal;
 	x = game->config->window_width / 2 - grid_width;
-	y = (int) game->config->window_height / 2 + (visuals->cell_height * (game->config->grid_size - 0.5)) - 40;
+	y = (int) (game->config->window_height / 2) + (visuals->cell_height * (game->config->grid_size - 0.5)) - 40;
 	init_bag_count(&visuals->bag_counts[0], x, y);
 	x = x + 2 * grid_width - 4 * 10;
 	init_bag_count(&visuals->bag_counts[1], x, y);
@@ -189,7 +189,7 @@ void	put_exe_name(game_t *game, visuals_t *visuals)
 
 	int grid_width = ((game->config->grid_size - 1) * 0.75) * visuals->cell_diagonal;
 	x = game->config->window_width / 2 - grid_width;
-	y = (int) game->config->window_height / 2 - (visuals->cell_height * (game->config->grid_size - 0.5));
+	y = (int) (game->config->window_height / 2) - (visuals->cell_height * (game->config->grid_size - 0.5));
 	mlx_put_string(visuals->mlx, game->players[0].exe_name, x, y);
 	x = x + 2 * grid_width - strlen(game->players[1].exe_name) * 10;
 	mlx_put_string(visuals->mlx, game->players[1].exe_name, x, y);
@@ -371,6 +371,18 @@ static void	frame(void *param)
 	}
 }
 
+static void place_walls(game_t *game)
+{
+	srand(game->config->wall_seed);
+	for (int i = 0; i < game->cell_count; i++) {
+		cell_t *cell = &game->cells[i];
+		int distance = (abs(cell->q) + abs(cell->r) + abs(cell->s)) / 2;
+		if (distance + 1 != game->config->grid_size)
+			if ((double) rand() / RAND_MAX < game->config->wall_chance)
+				place_wall(game, cell->q, cell->r, cell->s);
+	}
+}
+
 int main(int argc, char **argv)
 {
 	cluster_t	data;
@@ -383,6 +395,7 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 	game_init(&data.game, &config);
+	place_walls(&data.game);
 	if (argc == 2)
 		data.winner = game_start(&data.game, NULL, argv[1]);
 	else if (argc == 3)

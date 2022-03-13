@@ -20,6 +20,8 @@ void config_read(config_t *config, const char *path)
 	config->autoclose = -1;
 	config->bg_color = 0;
 	config->bg_gradient_color = 0;
+	config->wall_chance = -1;
+	config->wall_seed = -1;
 
 	while (fscanf(file, "%17s", key) == 1) {
 		if (strcmp(key, "use_mlx") == 0) {
@@ -47,6 +49,10 @@ void config_read(config_t *config, const char *path)
 			fscanf(file, "%X", &config->bg_color);
 		} else if (strcmp(key, "bg_gradient_color") == 0) {
 			fscanf(file, "%X", &config->bg_gradient_color);
+		} else if (strcmp(key, "wall_chance") == 0) {
+			fscanf(file, "%f", &config->wall_chance);
+		} else if (strcmp(key, "wall_seed") == 0) {
+			fscanf(file, "%d", &config->wall_seed);
 		} else if (strcmp(key, "#") == 0) {
 			while (1) {
 				int c = fgetc(file);
@@ -69,7 +75,9 @@ void config_read(config_t *config, const char *path)
 		|| config->window_width < 500
 		|| config->window_height < 500
 		|| (config->debug != 0 && config->debug != 1)
-		|| (config->autoclose != 0 && config->autoclose != 1)) {
+		|| (config->autoclose != 0 && config->autoclose != 1)
+		|| config->wall_chance < 0
+		|| config->wall_seed < 0) {
 		fprintf(stderr, "invalid config file\n");
 		exit(EXIT_FAILURE);
 	}

@@ -29,3 +29,7 @@ autoclose 0
 # background color and background gradient color in Uppercase hexadecimal, 0 for default colors
 bg_color 0X333333
 bg_gradient_color 0X990099
+
+# wall placement (set chance to 0.0 to disable walls)
+wall_chance 0.1
+wall_seed 12345

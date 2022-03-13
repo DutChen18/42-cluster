@@ -279,7 +279,7 @@ int game_postturn_drop(game_t *game, int q, int r, int s, int pos, int value)
 	return -1;
 }
 
-int handle_fetch(game_t *game)
+static int handle_fetch(game_t *game)
 {
 	char target[8];
 
