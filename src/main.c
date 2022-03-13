@@ -144,6 +144,7 @@ void	one_gui_cell(gui_t *obj, int x, int y, hexagon_t *colors, hexagon_t *back_c
 
 void	init_bag_count(visuals_t *visuals, hexagon_t *background, bag_count_t *bag, int x, int y)
 {
+	(void) visuals;
 	(void) background;
 	// bag->background = mlx_image_to_window(visuals->mlx, background->img, x, y);
 	bag->text = NULL;
