@@ -148,7 +148,7 @@ void	init_bag_count(visuals_t *visuals, hexagon_t *background, bag_count_t *bag,
 	// bag->background = mlx_image_to_window(visuals->mlx, background->img, x, y);
 	bag->text = NULL;
 	bag->x = x;
-	bag->y = y + visuals->grid.height / 8;
+	bag->y = y;
 }
 
 void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
@@ -176,12 +176,8 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	one_gui_cell(&visuals->gui[0], x, y, colors, &back_cell, HEXAGON_EVEN);
 	one_gui_cell(&visuals->gui[3], mirror_x, y, colors, &back_cell, HEXAGON_ODD);
 
-	x -= width / 4 * 3 - border_size / 4;
-	x += visuals->grid.height / 16;
-	y -= height / 2 - border_size / 4;
-	mirror_x = config->window_width - x - width;
-	init_bag_count(visuals, &back_cell, &visuals->bag_counts[0], x, y);
-	init_bag_count(visuals, &back_cell, &visuals->bag_counts[1], mirror_x, y);
+	init_bag_count(visuals, &back_cell, &visuals->bag_counts[0], 18, config->window_height - 36);
+	init_bag_count(visuals, &back_cell, &visuals->bag_counts[1], config->window_width - 40 - 18, config->window_height - 36);
 
 	place_gui_cells(visuals, config->color_count);
 }
@@ -345,7 +341,7 @@ static void	frame(void *param)
 				for (int j = 0; j < data->game.config->color_count / 2; j++)
 					total += data->game.chip_counts[j + i * data->game.config->color_count / 2];
 				sprintf(buf, "%04d", total);
-				bag->text = mlx_put_string(data->visuals.mlx, buf, bag->x + data->visuals.grid.height / 28 - 14, bag->y + data->visuals.grid.height / 28 - 10);
+				bag->text = mlx_put_string(data->visuals.mlx, buf, bag->x, bag->y);
 			}
 			data->winner = game_preturn(&data->game);
 			if (data->game.chip_a >= 0 && data->game.chip_b >= 0)
