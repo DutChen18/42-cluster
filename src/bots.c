@@ -236,11 +236,13 @@ int game_preturn(game_t *game)
 	game->chip_counts[game->chip_a] -= 1;
 	game->chip_b = game_take_random(game);
 	if (game->chip_b == -1) {
-		if (game->config->debug)
-			fprintf(stderr, "Player %d is out of chips\n", game->turn + 1);
-		return check_winner(!game->turn);
-	}
-	game->chip_counts[game->chip_b] -= 1;
+		if (game->config->chen_edition) {
+			if (game->config->debug)
+				fprintf(stderr, "Player %d is out of chips\n", game->turn + 1);
+			return check_winner(!game->turn);
+		}
+	} else
+		game->chip_counts[game->chip_b] -= 1;
 	return -1;
 }
 
@@ -262,10 +264,10 @@ int game_postturn_rotate(game_t *game, int value)
 int game_postturn_drop(game_t *game, int q, int r, int s, int pos, int value)
 {
 	compute_pos(pos, game->config->grid_size, game->gravity, &q, &r, &s);
-	if (value == game->chip_a)
-		game->chip_counts[game->chip_b] += 1;
-	else
+	if (value == game->chip_b)
 		game->chip_counts[game->chip_a] += 1;
+	else if (game->chip_b != -1)
+		game->chip_counts[game->chip_b] += 1;
 	if (game->players[!game->turn].is_bot)
 		fprintf(game->players[!game->turn].out, "drop %d %d\n", pos, value);
 	game_drop(game, q, r, s, value);
@@ -371,7 +373,7 @@ start:
 				fprintf(stderr, "Player %d tried to place a chip on top of another chip\n", game->turn + 1);
 			return check_winner(!game->turn);
 		}
-		if (value != game->chip_a && value != game->chip_b) {
+		if ((value != game->chip_a && value != game->chip_b) || value == -1) {
 			disarm_timer();
 			if (game->config->debug)
 				fprintf(stderr, "Player %d tried to place an invalid chip: %d\n", game->turn + 1, value);

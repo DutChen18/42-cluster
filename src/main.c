@@ -111,8 +111,10 @@ void	move_gui_cells(gui_t *obj, int color_count, int chip_a, int chip_b)
 			obj[i].colors[j].img->instances[i].z = DISMISS;
 	int player = chip_a < (color_count / 2) ? 0 : 2;
 
-	obj[player].colors[chip_a].img->instances[player].z = HEXAGON_EVEN;
-	obj[player + 1].colors[chip_b].img->instances[player + 1].z = HEXAGON_ODD;
+	if (chip_a != -1)
+		obj[player].colors[chip_a].img->instances[player].z = HEXAGON_EVEN;
+	if (chip_b != -1)
+		obj[player + 1].colors[chip_b].img->instances[player + 1].z = HEXAGON_ODD;
 }
 
 void	place_gui_cells(visuals_t *visuals, int color_count)
@@ -299,7 +301,7 @@ static void	frame(void *param)
 		if (!data->left_state && data->needs_move && !data->game.players[data->game.turn].is_bot) {
 			int pos;
 			cell_t *cell = get_cell_pos(data, &pos);
-			if (cell != NULL && cell->chip.value == -1) {
+			if (cell != NULL && cell->chip.value == -1 && data->game.chip_a != -1) {
 				data->winner = game_postturn_drop(&data->game, cell->q, cell->r, cell->s, pos, data->game.chip_a);
 				data->needs_move = false;
 				data->time = 0;
@@ -314,7 +316,7 @@ static void	frame(void *param)
 		if (!data->right_state && data->needs_move && !data->game.players[data->game.turn].is_bot) {
 			int pos;
 			cell_t *cell = get_cell_pos(data, &pos);
-			if (cell != NULL && cell->chip.value == -1) {
+			if (cell != NULL && cell->chip.value == -1 && data->game.chip_b != -1) {
 				data->winner = game_postturn_drop(&data->game, cell->q, cell->r, cell->s, pos, data->game.chip_b);
 				data->needs_move = false;
 				data->time = 0;
@@ -345,8 +347,7 @@ static void	frame(void *param)
 				bag->text = mlx_put_string(data->visuals.mlx, buf, bag->x, bag->y);
 			}
 			data->winner = game_preturn(&data->game);
-			if (data->game.chip_a >= 0 && data->game.chip_b >= 0)
-				move_gui_cells(data->visuals.gui, data->game.config->color_count, data->game.chip_a, data->game.chip_b);
+			move_gui_cells(data->visuals.gui, data->game.config->color_count, data->game.chip_a, data->game.chip_b);
 			if (data->winner == -1)
 				data->needs_move = true;
 			break;
