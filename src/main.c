@@ -164,7 +164,7 @@ void	gui_init(visuals_t *visuals, config_t *config, game_t *game)
 	for (int i = 0; i < config->color_count; i++)
 		hexagon_init(visuals->mlx, &colors[i], width, height, game->colors[i]);
 
-	y = config->window_height / 2 + (int) ((visuals->cell_height - get_border_size(visuals->cell_height) / 2) * (config->grid_size - 0.5)) - height;
+	y = config->window_height / 2 + (int) ((int) (visuals->cell_height - get_border_size(visuals->cell_height) / 2) * (config->grid_size - 0.5)) - height;
 	x = config->window_width / 2 - visuals->cell_diagonal * config->grid_size / 2;
 	mirror_x = config->window_width - x - width;
 	one_gui_cell(&visuals->gui[1], x, y, colors, &back_cell, HEXAGON_ODD);
@@ -253,8 +253,9 @@ static cell_t *get_cell_pos(cluster_t *data, int *pos)
 	float x, y;
 	cell_t *cell = NULL;
 	mlx_get_mouse_pos(data->visuals.mlx, &mx, &my);
-	x = (mx - data->game.config->window_width / 2.0) / data->visuals.cell_height;
-	y = (my - data->game.config->window_height / 2.0) / data->visuals.cell_height;
+	const int border_size = get_border_size(data->visuals.cell_height);
+	x = (mx - data->game.config->window_width / 2.0) / (int) (data->visuals.cell_height - border_size / 2);
+	y = (my - data->game.config->window_height / 2.0) / (int) (data->visuals.cell_height - border_size / 2);
 	for (int i = 0; i < data->game.cell_count; i++) {
 		cell_t *tmp = &data->game.cells[i];
 		if (sqrtf(powf(x - tmp->x, 2.0f) + powf(y - tmp->y, 2.0f)) < 0.5f) {
