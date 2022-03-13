@@ -210,7 +210,7 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 {
 	cluster_t	*data = (cluster_t*) param;
 
-	printf("-=-=- Process Movement -=-=-\n");
+	// printf("-=-=- Process Movement -=-=-\n");
 	// system("leaks cluster");
 	if (keydata.key == MLX_KEY_ESCAPE)
 		exit(0);
@@ -271,7 +271,7 @@ void	set_winning_line(visuals_t *visuals, game_t *game)
 {
 	hexagon_t winning_cell;
 
-	printf("starting printing line\n");
+	// printf("starting printing line\n");
 	hexagon_border_init(visuals, &winning_cell, visuals->cell_diagonal, visuals->cell_height, game->config->win_bg_color, game->config->win_border_color);
 	for (int i = 0; i < game->cell_count; i++)
 		if (game->cells[i].is_winning)

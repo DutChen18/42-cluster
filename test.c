@@ -65,13 +65,13 @@ static void compute_pos(int pos, int size, int gravity, int *q, int *r, int *s)
 static int read_emptiness(int q, int r, int s)
 {
 	int q2, r2, s2, value;
-	int count, result = -1;
-	printf("fetch cells\n");
+	int count, result = 1;
+	printf("fetch chips\n");
 	scanf(" cell_count %d", &count);
 	for (int i = 0; i < count; i++) {
 		scanf(" cell %d %d %d %d", &q2, &r2, &s2, &value);
 		if (q == q2 && r == r2 && s == s2)
-			result = (value == -1);
+			result = 0;
 	}
 	return result;
 }

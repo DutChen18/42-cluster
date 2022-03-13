@@ -313,9 +313,20 @@ static int handle_fetch(game_t *game)
 			if (cell->wall)
 				fprintf(game->players[game->turn].out, "wall %d %d %d\n", cell->q, cell->r, cell->s);
 		}
+	} else if (strcmp(target, "chips") == 0) {
+		int chip_count = 0;
+		for (int i = 0; i < game->cell_count; i++)
+			if (game->cells[i].chip.value != -1)
+				chip_count += 1;
+		fprintf(game->players[game->turn].out, "cell_count %d\n", chip_count);
+		for (int i = 0; i < game->cell_count; i++) {
+			cell_t *cell = &game->cells[i];
+			if (cell->chip.value != -1)
+				fprintf(game->players[game->turn].out, "cell %d %d %d %d\n", cell->q, cell->r, cell->s, cell->chip.value);
+		}
 	} else {
 		if (game->config->debug)
-			fprintf(stderr, "Player %d invalid fetch target: \"%s\" expected \"cells\" or \"gravity\" or \"walls\"\n", game->turn + 1, target);
+			fprintf(stderr, "Player %d invalid fetch target: \"%s\" expected \"cells\" or \"gravity\" or \"walls\" or \"chips\"\n", game->turn + 1, target);
 		return 0;
 	}
 

@@ -1,9 +1,16 @@
 # 42-cluster
 
+# description
+
+This is a game of *n* in a row on a hexagonal grid. The goal of the game is to make *n* in a row with the same color. The amount of colors is variable. You can also change the gravity. This all results in a very dynamic game with a lot of possibilties. Can you make the best bot? Down below you can find a guide of commands.
+
 # usage
 
 	make
-	./cluster [bot 1] [bot 2]
+	vim config.txt # change config settings
+	./cluster # player versus player
+	./cluster [bot 1] # player versus bot
+	./cluster [bot 1] [bot 2] # bot versus bot
 
 # commands
 
@@ -41,9 +48,10 @@
 
 	fetch %s
 		%s = type of information to obtain
-			cells = reply with "cell_count" and "cell" commands
-			gravity = reply with "gravity" command
-			walls = reply with "wall_count" and "wall" commands
+			cells = get list of all cells, using "cell_count" and "cell" commands
+			gravity = get current gravity state, using "gravity" command
+			walls = get list of walls, using "wall_count" and "wall" commands
+			chips = get list of chips, using "cell_count" and "cell" commands
 
 	cell_count %d
 		%d = number of "cell" commands that follow this command
