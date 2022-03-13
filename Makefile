@@ -15,7 +15,7 @@ all: $(bin)
 
 $(bin): $(obj) $(mlx)
 	@mkdir -p $(builddir)
-	$(CC) $(CFLAGS) $^ -o $@ -lglfw -L /Users/$(USER)/.brew/opt/glfw/lib
+	$(CC) $(CFLAGS) $^ -o $@ -lglfw -L /Users/$(USER)/.brew/opt/glfw/lib -lm
 
 $(builddir)/%.o: $(srcdir)/%.c
 	@mkdir -p $(builddir)

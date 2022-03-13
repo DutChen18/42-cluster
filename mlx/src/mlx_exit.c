@@ -12,6 +12,8 @@
 
 #include "MLX42/MLX42_Int.h"
 
+mlx_errno_t	mlx_errno;
+
 static void mlx_free_image(void* content)
 {
 	mlx_image_t* img = content;

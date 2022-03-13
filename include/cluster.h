@@ -1,10 +1,12 @@
 #ifndef CLUSTER_H
 #define CLUSTER_H
+#define _POSIX_C_SOURCE 1
 
 // Included libraries
 #include <stddef.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <sys/types.h>
 #include "MLX42/MLX42.h"
 
 //instance levels
