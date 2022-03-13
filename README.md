@@ -54,3 +54,7 @@
 	> drop 0 1
 	> chips 3 3
 	< rotate 1
+
+# notes
+
+coordinate system: https://www.redblobgames.com/grids/hexagons/#coordinates-cube
