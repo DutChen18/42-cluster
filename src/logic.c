@@ -38,6 +38,8 @@ int game_winner(game_t *game)
 	int best_length = 0;
 	int best_value = -1;
 	int best_count = 0;
+	int best_index = -1;
+	int best_direction = -1;
 
 	for (int dir = 0; dir < 3; dir += 1) {
 		for (int i = 0; i < game->cell_count; i += 1) {
@@ -54,11 +56,19 @@ int game_winner(game_t *game)
 				best_length = length;
 				best_value = value;
 				best_count = 1;
+				best_index = i;
+				best_direction = dir;
 			} else if (length == best_length)
 				best_count += 1;
 		}
 	}
-	if (best_length >= game->config->win_length && best_count == 1)
+	if (best_length >= game->config->win_length && best_count == 1) {
+		cell_t *cell = &game->cells[best_index];
+		for (int i = 0; i < best_length; i++) {
+			cell->is_winning = true;
+			cell = cell->neighbors[best_direction];
+		}
 		return best_value;
+	}
 	return -1;
 }
