@@ -340,6 +340,12 @@ start:
 				fprintf(stderr, "Player %d did not give rotate value\n", game->turn + 1);
 			return check_winner(!game->turn);
 		}
+		if (game->chip_a == -1 || game->chip_b == -1) {
+			disarm_timer();
+			if (game->config->debug)
+				fprintf(stderr, "Player %d tried to rotate with insufficient chips\n", game->turn + 1);
+			return check_winner(!game->turn);
+		}
 		if (value < 0 || value >= 6) {
 			disarm_timer();
 			if (game->config->debug)

@@ -237,7 +237,7 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 			direction = 4;
 		else if (keydata.key == MLX_KEY_Q && keydata.action == 1)
 			direction = 5;
-		if (direction != -1)
+		if (direction != -1 && data->game.chip_a != -1 && data->game.chip_b != -1)
 		{
 			data->winner = game_postturn_rotate(&data->game, direction);
 			data->needs_move = false;
