@@ -27,6 +27,7 @@ void config_read(config_t *config, const char *path)
 	config->cell_border_color = 0;
 	config->win_bg_color = 0;
 	config->win_border_color = 0;
+	config->color_blind = -1;
 
 	while (fscanf(file, "%31s", key) == 1) {
 		if (strcmp(key, "use_mlx") == 0) {
@@ -68,6 +69,8 @@ void config_read(config_t *config, const char *path)
 			fscanf(file, "%X", &config->win_bg_color);
 		} else if (strcmp(key, "win_border_color") == 0) {
 			fscanf(file, "%X", &config->win_border_color);
+		} else if (strcmp(key, "color_blind") == 0) {
+			fscanf(file, "%d", &config->color_blind);
 		} else if (strcmp(key, "#") == 0) {
 			while (1) {
 				int c = fgetc(file);
@@ -93,7 +96,8 @@ void config_read(config_t *config, const char *path)
 		|| (config->autoclose != 0 && config->autoclose != 1)
 		|| config->wall_chance < 0
 		|| config->wall_seed < 0
-		|| (config->chen_edition != 0 && config->chen_edition != 1)) {
+		|| (config->chen_edition != 0 && config->chen_edition != 1)
+		|| (config->color_blind != 0 && config->color_blind != 1)) {
 		fprintf(stderr, "invalid config file\n");
 		exit(EXIT_FAILURE);
 	}
