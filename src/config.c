@@ -8,6 +8,12 @@ void config_read(config_t *config, const char *path)
 	FILE* file = fopen(path, "r");
 	char key[32];
 
+	if (file == NULL)
+	{
+		fprintf(stderr, "Could not open configuration file: %s\n", path);
+		exit(EXIT_FAILURE);
+	}
+
 	config->use_mlx = -1;
 	config->grid_size = -1;
 	config->bot_speed = -1;
