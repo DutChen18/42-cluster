@@ -80,10 +80,7 @@ void set_background(config_t *config, visuals_t *visuals)
 	for (int y = 0; y < config->window_height; y++)
 		for (int x = 0; x < config->window_width; x++)
 		{
-			if (config->bg_color != 0)
-				mlx_put_pixel(image, x, y, config->bg_color << 8 | 0xFF);
-			else
-				mlx_put_pixel(image, x, y, 0x333333FF);
+			mlx_put_pixel(image, x, y, config->bg_color << 8 | 0xFF);
 		}
 	index = mlx_image_to_window(visuals->mlx, image, 0, 0);
 	image->instances[index].z = BACKROUND;
@@ -234,7 +231,6 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 			data->time = 0;
 		}
 	}
-	system("leaks cluster");
 }
 
 static cell_t *get_cell_pos(cluster_t *data, int *pos)

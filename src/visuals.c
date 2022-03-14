@@ -136,7 +136,9 @@ void set_bg_gradients(config_t *config, mlx_t* mlx, mlx_image_t **bg_gradients)
 	float			x2;
 	float			y2;
 	unsigned int	newcolor;
+	int				intensity;
 
+	intensity = 100;
 	for (int i = 0; i < 6; i++)
 	{
 		bg_gradients[i] = mlx_new_image(mlx, config->window_width, config->window_height);
@@ -152,11 +154,11 @@ void set_bg_gradients(config_t *config, mlx_t* mlx, mlx_image_t **bg_gradients)
 					gradient = 0;
 				else if (gradient > 1)
 					gradient = 1;
-				if (config->bg_gradient_color == 0)
-					newcolor = (unsigned)(gradient * 153) << 24 | (unsigned)(gradient * 153) << 8 | (unsigned)(gradient * 255);
-				else
-					newcolor = (0xFFFFFF & config->bg_gradient_color) << 8 | (unsigned)(gradient * 153);
-				mlx_put_pixel(bg_gradients[i], x, y, newcolor);
+				newcolor = 0;
+				newcolor |= ((unsigned)((config->bg_gradient_color & 0xFF0000) * gradient) & 0xFF0000);
+				newcolor |= ((unsigned)((config->bg_gradient_color & 0x00FF00) * gradient) & 0x00FF00);
+				newcolor |= ((unsigned)((config->bg_gradient_color & 0x0000FF) * gradient) & 0x0000FF);
+				mlx_put_pixel(bg_gradients[i], x, y, newcolor << 8 | (unsigned)(gradient * 255));
 			}
 		}
 	}
