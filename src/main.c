@@ -234,7 +234,6 @@ static void	process_movement(mlx_key_data_t keydata, void* param)
 			data->time = 0;
 		}
 	}
-	system("leaks cluster");
 }
 
 static cell_t *get_cell_pos(cluster_t *data, int *pos)

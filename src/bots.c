@@ -123,7 +123,7 @@ int game_start(game_t *game, const char *p1, const char *p2)
 	} else {
 		game->players[0].is_bot = false;
 		game->players[0].exe_name = "player 1";
-		col1 = 0xFF0000;
+		col1 = 0x0000FF;
 	}
 
 	if (p2 != NULL) {
@@ -131,9 +131,8 @@ int game_start(game_t *game, const char *p1, const char *p2)
 	} else {
 		game->players[1].is_bot = false;
 		game->players[1].exe_name = "player 2";
-		col2 = 0xFF0000;
+		col2 = 0xFFFF00;
 	}
-
 	if (p1 != NULL) {
 		arm_timer(game->config->timeout);
 		fprintf(game->players[0].out, "init %d %d %d %d %f 0\n",
@@ -160,6 +159,8 @@ int game_start(game_t *game, const char *p1, const char *p2)
 				fprintf(stderr, "Player 1 did not send color value\n");
 			return 1;
 		}
+		if (game->config->color_blind)
+			c1 = 4; 
 		switch (c1) {
 		case 0: col1 = 0xFF0000; break;
 		case 1: col1 = 0xFFFF00; break;
@@ -201,6 +202,8 @@ int game_start(game_t *game, const char *p1, const char *p2)
 				fprintf(stderr, "Player 2 did not send color value\n");
 			return 0;
 		}
+		if (game->config->color_blind)
+			c2 = 1; 
 		switch (c2) {
 		case 0: col2 = 0xFF0000; break;
 		case 1: col2 = 0xFFFF00; break;

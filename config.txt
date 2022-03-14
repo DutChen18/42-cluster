@@ -8,7 +8,7 @@ bot_speed 0.01
 grid_size 14
 
 # number of colors per player, will be set to grid_size if color_count > grid_size
-color_count 3
+color_count 2
 
 # colors in a row required to win
 win_length 4
@@ -44,4 +44,4 @@ win_bg_color FFFFFF
 win_border_color FFFFFF
 
 # color blind mode
-color_blind 0
+color_blind 1
