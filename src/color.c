@@ -104,7 +104,7 @@ void create_chip_colors(game_t *game, unsigned base_color_p1, unsigned base_colo
 
 	if (close_color_check(base_color_p1, base_color_p2))
 		base_color_p2 = get_inverted_color(base_color_p2);
-	h_increase = 1.0 / 6.0 / (game->config->color_count / 2.0);
+	h_increase = 1.0 / 6.0 / (game->config->color_count / 1.66);
 	split_rgb(base_color_p1, &r, &g, &b);
 	rgb_to_hsv(&r, &g, &b, &h, &s, &v);
 	h = fmod(h - h_increase * game->config->color_count / 4.0 + 1.0, 1.0);

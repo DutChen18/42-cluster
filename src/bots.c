@@ -162,10 +162,10 @@ int game_start(game_t *game, const char *p1, const char *p2)
 		if (game->config->color_blind)
 			c1 = 4; 
 		switch (c1) {
-		case 0: col1 = 0xFF0000; break;
+		case 0: col1 = 0xFF1133; break;
 		case 1: col1 = 0xFFFF00; break;
 		case 3: col1 = 0x00FFFF; break;
-		case 4: col1 = 0x0000FF; break;
+		case 4: col1 = 0x0033FF; break;
 		case 5: col1 = 0xFF00FF; break;
 		default:
 			disarm_timer();
@@ -205,10 +205,10 @@ int game_start(game_t *game, const char *p1, const char *p2)
 		if (game->config->color_blind)
 			c2 = 1; 
 		switch (c2) {
-		case 0: col2 = 0xFF0000; break;
+		case 0: col2 = 0xFF1133; break;
 		case 1: col2 = 0xFFFF00; break;
 		case 3: col2 = 0x00FFFF; break;
-		case 4: col2 = 0x0000FF; break;
+		case 4: col2 = 0x0033FF; break;
 		case 5: col2 = 0xFF00FF; break;
 		default:
 			disarm_timer();
