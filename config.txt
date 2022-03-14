@@ -42,3 +42,6 @@ cell_bg_color 333333
 cell_border_color 222222
 win_bg_color FFFFFF
 win_border_color FFFFFF
+
+# color blind mode
+color_blind 0
