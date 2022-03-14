@@ -8,7 +8,7 @@ bot_speed 0.01
 grid_size 14
 
 # number of colors per player, will be set to grid_size if color_count > grid_size
-color_count 2
+color_count 3
 
 # colors in a row required to win
 win_length 4
@@ -27,8 +27,8 @@ debug 1
 autoclose 0
 
 # background color and background gradient color in Uppercase hexadecimal, 0 for default colors
-bg_color 3aa2db
-bg_gradient_color e52a2d
+bg_color F2911A
+bg_gradient_color E52A2D
 
 # wall placement (set chance to 0.0 to disable walls)
 wall_chance 0.1
