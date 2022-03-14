@@ -26,7 +26,7 @@ debug 1
 # automatically exit the program when the game is over
 autoclose 0
 
-# background color and background gradient color in Uppercase hexadecimal, 0 for default colors
+# background color and background gradient color in Uppercase hexadecimal
 bg_color 333333
 bg_gradient_color 990099
 
