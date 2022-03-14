@@ -88,6 +88,7 @@ struct config {
 	unsigned	cell_border_color;
 	unsigned	win_bg_color;
 	unsigned	win_border_color;
+	int			color_blind;
 };
 
 // Structure used for bot implementation
