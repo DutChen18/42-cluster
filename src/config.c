@@ -3,15 +3,48 @@
 #include <stdio.h>
 #include <string.h>
 
-void config_read(config_t *config, const char *path)
+char *ft_strjoin_and_free_s1(char *s1, const char *s2)
+{
+	char				*new;
+	const unsigned int	len_new_str = strlen(s1) + strlen(s2);
+
+	new = malloc(sizeof(*new) * (len_new_str + 1));
+	strncpy(new, s1, strlen(s1));
+	strncpy(new + strlen(s1), s2, strlen(s2) + 1);
+	free(s1);
+	return new;
+}
+
+char	*make_config_name_exe_dir(char *exe_name, const char *config)
+{
+	char *dir;
+
+	char *test = strrchr(exe_name, '/') + 1;
+	int	right_len = strlen(exe_name) - strlen(test);
+
+	printf("%d\n", right_len);
+	dir = malloc(sizeof(*dir) * (right_len + 1));
+	strncpy(dir, exe_name, right_len);
+	dir[right_len] = '\0';
+	return (ft_strjoin_and_free_s1(dir, config));
+}
+
+void config_read(config_t *config, const char *path, char *exe_name)
 {
 	FILE* file = fopen(path, "r");
 	char key[32];
+	char *new_path;
 
 	if (file == NULL)
 	{
-		fprintf(stderr, "Could not open configuration file: %s\n", path);
-		exit(EXIT_FAILURE);
+		new_path = make_config_name_exe_dir(exe_name, path);
+		file = fopen(new_path, "r");
+		free(new_path);
+		if (file == NULL)
+		{
+			fprintf(stderr, "Could not open configuration file: %s\n", path);
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	config->use_mlx = -1;

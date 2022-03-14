@@ -189,6 +189,6 @@ void grid_init(visuals_t *visuals, game_t *game);
 void set_bg_gradients(config_t *config, mlx_t* mlx, mlx_image_t **bg_gradients);
 void visuals_init(visuals_t *visuals, mlx_t *mlx, game_t *game);
 
-void config_read(config_t *config, const char *path);
+void config_read(config_t *config, const char *path, char *exe_name);
 
 #endif // CLUSTER_H

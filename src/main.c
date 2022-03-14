@@ -386,7 +386,7 @@ int main(int argc, char **argv)
 	mlx_t		*mlx;
 	config_t	config;
 
-	config_read(&config, "config.txt");
+	config_read(&config, "config.txt", argv[0]);
 	if (argc > 3 || (argc != 3 && !config.use_mlx)) {
 		fprintf(stderr, "usage: %s [player 1] [player 2]", argv[0]);
 		return EXIT_FAILURE;
