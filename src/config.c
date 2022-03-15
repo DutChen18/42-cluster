@@ -22,7 +22,6 @@ char	*make_config_name_exe_dir(char *exe_name, const char *config)
 	char *test = strrchr(exe_name, '/') + 1;
 	int	right_len = strlen(exe_name) - strlen(test);
 
-	printf("%d\n", right_len);
 	dir = malloc(sizeof(*dir) * (right_len + 1));
 	strncpy(dir, exe_name, right_len);
 	dir[right_len] = '\0';
