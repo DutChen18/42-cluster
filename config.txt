@@ -2,13 +2,13 @@
 use_mlx 1
 
 # bot speed, lower = faster
-bot_speed 0.01
+bot_speed 0.05
 
 # side length of the game grid, grid_size >= 4
-grid_size 14
+grid_size 6
 
 # number of colors per player, will be set to grid_size if color_count > grid_size
-color_count 4
+color_count 2
 
 # colors in a row required to win
 win_length 4
@@ -31,7 +31,7 @@ bg_color 333333
 bg_gradient_color 990099
 
 # wall placement (set chance to 0.0 to disable walls)
-wall_chance 0.1
+wall_chance 0.0
 wall_seed 12345
 
 # disallow drawing a single chip from an otherwise empty bag
