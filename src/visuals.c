@@ -136,9 +136,7 @@ void set_bg_gradients(config_t *config, mlx_t* mlx, mlx_image_t **bg_gradients)
 	float			x2;
 	float			y2;
 	unsigned int	newcolor;
-	int				intensity;
 
-	intensity = 100;
 	for (int i = 0; i < 6; i++)
 	{
 		bg_gradients[i] = mlx_new_image(mlx, config->window_width, config->window_height);
