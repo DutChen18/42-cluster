@@ -198,6 +198,11 @@ int game_start(game_t *game, const char *p1, const char *p2)
 			game->config->win_length,
 			game->config->timeout);
 	p1_start:
+		if (timed_out) {
+			if (game->config->debug)
+				fprintf(stderr, "Player 1 timed out\n");
+			return check_winner(1);
+		}
 		if (fscanf(game->players[0].in, "%7s", action) != 1) {
 			disarm_timer();
 			if (game->config->debug)
@@ -249,6 +254,11 @@ int game_start(game_t *game, const char *p1, const char *p2)
 			game->config->win_length,
 			game->config->timeout);
 	p2_start:
+		if (timed_out) {
+			if (game->config->debug)
+				fprintf(stderr, "Player 2 timed out\n");
+			return check_winner(0);
+		}
 		if (fscanf(game->players[1].in, "%7s", action) != 1) {
 			disarm_timer();
 			if (game->config->debug)
