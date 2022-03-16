@@ -5,6 +5,22 @@
 #include <math.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
+#include <unistd.h>
+
+static unsigned long mix(unsigned long a, unsigned long b, unsigned long c)
+{
+	a = (a - b - c) ^ (c >> 13);
+	b = (b - c - a) ^ (a << 8);
+	c = (c - a - b) ^ (b >> 13);
+	a = (a - b - c) ^ (c >> 12);
+	b = (b - c - a) ^ (a << 16);
+	c = (c - a - b) ^ (b >> 5);
+	a = (a - b - c) ^ (c >> 3);
+	b = (b - c - a) ^ (a << 10);
+	c = (c - a - b) ^ (b >> 15);
+	return c;
+}
 
 int get_height_from_width(int width)
 {
@@ -393,6 +409,7 @@ int main(int argc, char **argv)
 	}
 	game_init(&data.game, &config);
 	place_walls(&data.game);
+	srand(mix(clock(), time(NULL), getpid()));
 	if (argc == 2)
 		data.winner = game_start(&data.game, NULL, argv[1]);
 	else if (argc == 3)
