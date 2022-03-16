@@ -116,7 +116,7 @@ void	place_gui_cells(visuals_t *visuals, int color_count)
 			visuals->gui[i].back_cell->img->instances[index].z = GRID;
 		for (int j = 0; j < color_count; j++)
 		{
-			index = mlx_image_to_window(visuals->mlx, visuals->gui[i].colors[j].img, visuals->gui[i].x + visuals->gui[i].back_cell->width /8, visuals->gui[i].y + visuals->gui[i].back_cell->height / 8);
+			index = mlx_image_to_window(visuals->mlx, visuals->gui[i].colors[j].img, visuals->gui[i].x + visuals->gui[i].back_cell->width / 17 * 2, visuals->gui[i].y + visuals->gui[i].back_cell->height / 17 * 2);
 			visuals->gui[i].colors[j].img->instances[index].z = DISMISS;
 		}
 	}
